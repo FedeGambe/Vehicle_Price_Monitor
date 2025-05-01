@@ -11,7 +11,7 @@ import pandas as pd
 
 #Normal_File
 raw = 'https://raw.githubusercontent.com/'
-url = raw + 'FedeGambe/Vehicle_Price_Monitor/main/Materiali/gi_comuni_cap.csv'
+url = raw + 'FedeGambe/Vehicle_Price_Monitor/main/Materiali/Data/gi_comuni_cap.csv'
 df = pd.read_csv(url, delimiter=';')
 
 #########################################################################################################
