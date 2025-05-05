@@ -6,6 +6,7 @@
 Il programma si occupa di scaricare gli annunci da una pagina di ricerca AutoScout, elaborare i dati e restituire un elenco delle **10 auto più appetibili** secondo un indice basato su caratteristiche tecniche, distanza, prezzo e allestimento.
 
 - Link Colab: [![Apri su Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1VSYNB0qraaoZPC1ZIS_AbRln1viPwnp1?usp=sharing)
+- [Notebook ipnyb](./Vehicle_Price_Monitor/VehiclePriceMonitor_Scaper (autoscout).ipynb)
   
 ---
 
