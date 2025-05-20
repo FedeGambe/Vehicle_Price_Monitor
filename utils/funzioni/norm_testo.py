@@ -1,6 +1,6 @@
-import re
 import pandas as pd
-from datetime import datetime
+import unicodedata
+import re
 
 def normalizza_testo(testo): # Funzione per rimuovere gli accenti e convertire in minuscolo
     if pd.isnull(testo):
