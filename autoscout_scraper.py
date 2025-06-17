@@ -94,7 +94,7 @@ def autoscout_scraper(url_template, max_pages=20, output_csv=None):
                 'Venditore': venditore
             })
 
-        time.sleep(random.uniform(1, 3.5))
+        time.sleep(random.uniform(5, 10))
 
     df = pd.DataFrame(all_listings)
     df['Prezzo'] = df['Prezzo'].str.replace('[^0-9]', '', regex=True)
