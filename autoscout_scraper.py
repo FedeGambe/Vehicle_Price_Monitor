@@ -23,9 +23,9 @@ def autoscout_scraper(url_template, max_pages=20, output_csv=None):
     if output_csv is None:
         # Se siamo su Colab, usa /content/, altrimenti usa la directory corrente
         if 'COLAB_GPU' in os.environ:
-            output_csv = '/content/classe_A_Autoscout.csv'
+            output_csv = '/content/data_scaper_Autoscout.csv'
         else:
-            output_csv = 'classe_A_Autoscout.csv'    
+            output_csv = 'data_scaper_Autoscout.csv'    
     
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"}
     all_listings = []
