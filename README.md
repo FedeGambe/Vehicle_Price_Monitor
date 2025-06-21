@@ -1,4 +1,4 @@
-# 🚗 Vehicle Price Monitor
+# Vehicle Price Monitor
 
 **Vehicle Price Monitor** è un'applicazione Python per il monitoraggio dei prezzi delle auto usate, con l’obiettivo di identificare le offerte più interessanti tramite analisi oggettive e personalizzabili.
 
