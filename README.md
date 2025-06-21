@@ -25,11 +25,11 @@ Utilizza tecniche di **web scraping** (AutoScout24) e dataset provenienti da pi�
 ├── Vehicle_Price_Monitor.ipynb                    # Analisi da CSV + confronto prezzi regionali
 ├── autoscout_scraper.py                           # Script puro di scraping AutoScout24
 ├── requirements.txt
-├── LICENSE
 └── 📁 Esempi/                                      # Notebook di esempio per altri modelli
     ├── Fiat_Panda_Analisi.ipynb
-    ├── Audi_A3_Analisi.ipynb
     └── ...
+└── Materiali                                       # Materiali utili, come dataset, per usare il programma con il veicolo Merc Classe A
+└── utils                                           # Dove sono presenti le funzioni utili al programma
 
 ```
 ---
