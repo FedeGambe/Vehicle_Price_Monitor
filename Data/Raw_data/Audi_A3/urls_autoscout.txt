@@ -1,0 +1,8 @@
+# Lista degli URL (multipli in caso di AutoScout, in quanto mostra solo 400 annunci a volta)
+urls_autoscout = [
+    'https://www.autoscout24.it/lst/audi/a3?atype=C&custtype=D&cy=I&damaged_listing=exclude&desc=0&fregfrom=2020&powertype=kw&pricefrom=2000&priceto=25000&search_id=12ielxe9rq4&sort=standard&source=homepage_search-mask&ustate=N%2CU',
+    'https://www.autoscout24.it/lst/audi/a3?atype=C&custtype=D&cy=I&damaged_listing=exclude&desc=0&fregfrom=2020&powertype=kw&pricefrom=25000&priceto=30000&search_id=1udnb3io5rt&sort=standard&source=homepage_search-mask&ustate=N%2CU',
+    'https://www.autoscout24.it/lst/audi/a3?atype=C&custtype=D&cy=I&damaged_listing=exclude&desc=0&fregfrom=2020&kmto=20000&powertype=kw&pricefrom=30000&priceto=40000&search_id=127dygmh87y&sort=standard&source=homepage_search-mask&ustate=N%2CU',
+    'https://www.autoscout24.it/lst/audi/a3?atype=C&custtype=D&cy=I&damaged_listing=exclude&desc=0&fregfrom=2020&kmfrom=20000&powertype=kw&pricefrom=30000&priceto=40000&search_id=18hpxf5w08w&sort=standard&source=homepage_search-mask&ustate=N%2CU',
+    'https://www.autoscout24.it/lst/audi/a3?atype=C&custtype=D&cy=I&damaged_listing=exclude&desc=0&fregfrom=2020&powertype=kw&pricefrom=40000&search_id=swdhtz0w09&sort=standard&source=homepage_search-mask&ustate=N%2CU'
+]
