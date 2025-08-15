@@ -1,59 +1,62 @@
 # Vehicle Price Monitor
 
-**Vehicle Price Monitor** è un'applicazione Python per il monitoraggio dei prezzi delle auto usate, con l’obiettivo di identificare le offerte più interessanti tramite analisi oggettive e personalizzabili.
-
-Utilizza tecniche di **web scraping** (AutoScout24) e dataset provenienti da più portali (es. Automobile.it, AutoSupermarket, AutoTorino) usando software di scraping - come Octoparse - per valutare i veicoli secondo parametri come **prezzo, chilometraggio, potenza, allestimento e distanza**.
-
----
-
-## 📌 Caratteristiche principali
-
-- Estrazione automatica degli annunci (scraping, solo in `VehiclePriceMonitor_AutoscoutScraper.ipynb`)
-- Calcolo distanza chilometrica tra annuncio e luogo di residenza
-- Valutazione "conveniente / non conveniente"
-- Calcolo di un **Indice di Appetibilità personalizzabile**
-- Classifica delle **10 migliori offerte**
-- Analisi regionale dei prezzi (solo in `Vehicle_Price_Monitor.ipynb`)
+**Auto Price Monitor** è un programma completo per la **raccolta**, **preparazione**, **analisi** e **predizione** dei prezzi delle auto usate in Italia.  
+L'obiettivo è supportare gli utenti nella valutazione delle offerte disponibili online, stimando il prezzo corretto e fornendo un'analisi personalizzata delle migliori opportunità sul mercato.
 
 ---
 
-## 📂 Struttura del progetto
+## Funzionalità principali
 
-```bash
-📁 Vehicle-Price-Monitor/
-├── VehiclePriceMonitor_AutoscoutScraper.ipynb     # Scraping + analisi per Mercedes Classe A
-├── Vehicle_Price_Monitor.ipynb                    # Analisi da CSV + confronto prezzi regionali
-├── autoscout_scraper.py                           # Script puro di scraping AutoScout24
-├── requirements.txt
-└── 📁 Esempi/                                      # Notebook di esempio per altri modelli
-    ├── Fiat_Panda_Analisi.ipynb
-    └── ...
-└── Materiali                                       # Materiali utili, come dataset, per usare il programma con il veicolo Merc Classe A
-└── utils                                           # Dove sono presenti le funzioni utili al programma
-
-```
----
-Link Colab
--  Vehicle_Price_Monitor: [![Apri su Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1c_pZhJ38KxPhe0YUictMe4ysiB-6GBo3?usp=sharing)
--  VehiclePriceMonitor_AutoscoutScraper: [![Apri su Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1VSYNB0qraaoZPC1ZIS_AbRln1viPwnp1?usp=sharing)
-
+- **Web Scraping automatizzato** da siti italiani di annunci auto:
+  - [x] autoscout24.it
+  - [x] automobile.it
+  - [x] subito.it
+  - [x] autosupermarket.it
+  - [ ] autotorino.it *(in fase di sviluppo)*
+- **Pulizia e preparazione dati** multi-sorgente
+- **Analisi geografica e di convenienza**:
+  - Calcolo della **distanza chilometrica** tra l'annuncio e il luogo di residenza dell'utente
+  - **Valutazione del prezzo** come *conveniente* o *non conveniente* rispetto al mercato
+- **Indice di Appetibilità** configurabile:
+  - Ponderazione delle caratteristiche preferite (es. chilometraggio, potenza, anno, prezzo)
+- **Classifica delle migliori offerte** in base alle preferenze dell’utente
+- **Predizione del prezzo di mercato** con modelli di machine learning
+- **Dashboard predittiva** utilizza un modello di machine learning per prevedere il prezzo di una vettura, in base ai dati inseriti dall’utente, e valutare se rappresenta un buon affare
 
 ---
 
-## 🧠 Come funziona l’Indice di Appetibilità
+## Come si usa il programma?
 
-L’indice è un valore compreso tra 0 e 1 che rappresenta quanto un’auto risulta interessante rispetto alle altre dell’elenco. Per esmpio viene calcolato combinando i seguenti fattori:
+> 🟢 **L'utente deve utilizzare esclusivamente i notebook presenti nella cartella `Application/`.**  
+> Non è necessario modificare o eseguire manualmente altri file all'interno del progetto.
 
-| Fattore             | Peso  | Descrizione                                        |
-|---------------------|-------|---------------------------------------------------|
-| Anno dell'auto      | 0.15  | Auto più recenti sono preferite                   |
-| Prezzo              | 0.25  | Prezzo più basso è considerato più appetibile     |
-| Chilometraggio      | 0.20  | Meno chilometri percorsi = migliore condizione    |
-| Distanza da te      | 0.10  | Più vicina = più comoda e meno costosa da ritirare|
-| Allestimento        | 0.30  | Più alto è il livello, maggiore è il punteggio    |
-| Potenza (CV)        | 0.10  | Veicoli più potenti ricevono un leggero vantaggio |
-| Cambio automatico   | 0.50  | Le auto automatiche ottengono un bonus aggiuntivo |
+### Passaggi da seguire:
 
-Tutti i valori sono **normalizzati** per garantire confronti equi tra veicoli con caratteristiche diverse.
+1. **Personalizza le configurazioni dei modelli auto nei file presenti in `Data/config/`** creando un file .py
+
+2. **Vai nella cartella `Application/`**
+
+3. **Esegui i notebook nell'ordine indicato:**
+   - `1_Scraping_and_Data_preparation.ipynb`  
+     ↳ Scarica i dati dal web e li prepara per l'analisi
+   - `2_Understanding_Pricing.ipynb`  
+     ↳ Analizza i dati, valuta la distanza, convenienza e appetibilità
+   - `3_Price_Prediction.ipynb`  
+     ↳ Applica un modello predittivo per stimare il prezzo delle auto
+   - `4_Dashboard.ipynb`  
+     ↳ Se hai trovato una nuova auto o ti hanno proposto un nuovo prezzo, con la dashboard predittiva: potrai inserire tutti nuovi i parametri per capire se l’offerta è conveniente o meno.
 
 ---
+
+
+## Struttura del progetto
+
+```plaintext
+Vehicle_Price_Monitor/
+├── Scraping/                  # Estrazione automatica dei dati online
+├── Data_Preparation/         # Pulizia, unificazione e preparazione dei dataset
+├── Data_Analysis/            # Analisi esplorativa, geolocalizzazione, ML
+├── Materiali/                # Dataset grezzi, dati puliti e file di configurazione
+├── Progetti/                 # Analisi dedicate a modelli auto specifici
+├── Programma/                # Notebook guida per l’esecuzione completa
+└── README.md                 # Questo file
