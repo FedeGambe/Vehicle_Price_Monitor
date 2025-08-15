@@ -1,5 +1,4 @@
 ```plaintext
-
 Vehicle_Price_Monitor/
 ├── Application/                 # Esecuzione guidata del progetto (user entry point)
 │   ├── 1_Scraping_and_Data_preparation.ipynb
