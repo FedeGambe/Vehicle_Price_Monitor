@@ -21,67 +21,63 @@ L'obiettivo è supportare gli utenti nella valutazione delle offerte disponibili
   - Ponderazione delle caratteristiche preferite (es. chilometraggio, potenza, anno, prezzo)
 - **Classifica delle migliori offerte** in base alle preferenze dell’utente
 - **Predizione del prezzo di mercato** con modelli di machine learning
-- **Dashboard predittiva** utilizza un modello di machine learning per prevedere il prezzo di una vettura, in base ai dati inseriti dall’utente, e valutare se rappresenta un buon affare
+- **Dashboard HTML** (`app/dashboard.html`): pagina unica che si apre con doppio clic. Calcolatore sovra/sotto prezzo e classifica delle migliori offerte, senza server né modelli da caricare
 
 ---
 
-## Come si usa il programma?
-
-> 🟢 **Si usano solo i notebook in `notebooks/`.**
-
-### Setup (una volta)
+## Come si usa il programma
 
 ```bash
-pip install -e .        # installa il pacchetto vehicle_price_monitor + dipendenze
+pip install -e .                                   # una volta sola (Python >= 3.11)
+
+python -m vehicle_price_monitor modelli            # auto configurate
+python -m vehicle_price_monitor run Opel_Corsa     # scrape + prepare + train + dashboard
+python -m vehicle_price_monitor run tutti          # tutte le auto configurate
 ```
 
-### Passaggi
+Poi apri **`app/dashboard.html`** nel browser.
 
-1. **Crea la config del modello** in `vehicle_price_monitor/config/config_<Marca_Modello>.py` (vedi il README in quella cartella).
-2. **Esegui i notebook in `notebooks/` nell'ordine:**
-   - `1_Scraping_and_Data_preparation.ipynb`  
-     ↳ Scarica i dati dal web e li prepara per l'analisi
-   - `2_Understanding_Pricing.ipynb`  
-     ↳ Analizza i dati, valuta la distanza, convenienza e appetibilità
-   - `3_Price_Prediction.ipynb`  
-     ↳ Applica un modello predittivo per stimare il prezzo delle auto
-   - `4_Dashboard.ipynb`  
-     ↳ Se hai trovato una nuova auto o ti hanno proposto un nuovo prezzo, con la dashboard predittiva: potrai inserire tutti nuovi i parametri per capire se l’offerta è conveniente o meno.
+Ogni fase si può lanciare da sola (`python -m vehicle_price_monitor -h` per le opzioni):
 
----
+| Comando | Cosa fa | Output |
+|---|---|---|
+| `scrape MODELLO` | scarica gli annunci dai 4 siti (`--siti`, `--max-pages`, `--prezzo-max 20000`, `--anno-min 2022`, ...) | `data/raw/<Modello>/` |
+| `prepare MODELLO` | pulisce, unisce, calcola distanze e variabili dummy (`--comune`) | `data/processed/<Modello>/` |
+| `train MODELLO` | addestra la Random Forest | `data/models/<Modello>/` |
+| `top MODELLO` | classifica nel terminale (`--prezzo-max`, `--km-max`, `--dist-max`, `-n`) | stampa |
+| `dashboard` | rigenera la pagina HTML | `app/dashboard.html` |
+| `run MODELLO` | scrape + prepare + train + dashboard (`--senza-scraping` riusa i grezzi) | tutto |
 
+Lo scraping apre Chrome (Subito e Autosupermarket lo richiedono): è normale che compaiano delle finestre.
+
+### Configurazione (`data/config/`)
+
+- **`<Marca_Modello>.toml`**: una per auto. Contiene lo slug di ogni sito, i filtri di ricerca di default, gli allestimenti per segmento, le motorizzazioni e i CV. Per aggiungere un'auto copia un file esistente e cambia i valori (il nome del file è il nome del modello).
+- **`utente.toml`**: il tuo comune di residenza, i pesi dell'indice di appetibilità e la soglia di prezzo.
+- **`geo/`**: comuni, CAP e distanze.
 
 ## Struttura del progetto
 
 ```plaintext
 Vehicle_Price_Monitor/
-├── notebooks/                    # Unico entry point utente (1→4)
-├── app/
-│   ├── dashboard.py              # Dashboard Dash (usa i modelli Random Forest in data/models)
-│   ├── export_web_data.py        # Genera web/models.json (regressione lineare, niente .pkl)
-│   └── web/                      # Dashboard React (JSX) standalone: index.html + Dashboard.jsx + models.json
-├── vehicle_price_monitor/        # Codice riutilizzabile (pacchetto Python)
-│   ├── paths.py                  # Percorsi (ROOT, RAW, PROCESSED, MODELS, GEO) + load_config()
-│   ├── config/                   # config_<Modello>.py (allestimenti, motorizzazioni, CV) + geo/ (comuni, distanze)
+├── vehicle_price_monitor/        # Pacchetto Python (si lancia con python -m vehicle_price_monitor)
+│   ├── __main__.py               # Riga di comando
+│   ├── pipeline.py               # scrape / prepare / train / top
+│   ├── dashboard.py              # Genera app/dashboard.html
+│   ├── paths.py                  # Percorsi e lettura dei TOML
 │   ├── scraping/                 # url_builders, scraping_functions
 │   ├── preparation/              # pulizia e formattazione dataset
 │   └── analysis/                 # price_analysis (OLS, RF, appetibilità), plots
+├── app/
+│   ├── dashboard.html            # La dashboard (generata)
+│   ├── template.html             # Struttura e stile della pagina
+│   └── copertina.svg             # Copertina
 ├── data/
+│   ├── config/                   # <Modello>.toml, utente.toml, geo/
 │   ├── raw/<Modello>/            # output grezzo dello scraping
 │   ├── processed/<Modello>/      # dataset puliti
 │   └── models/<Modello>/         # modelli ML salvati (.pkl)
-├── archive/                      # Materiale storico: vecchi notebook, Projects/, main deprecato
+├── archive/                      # Vecchi notebook, Projects/, main deprecato
 ├── pyproject.toml
 └── requirements.txt
 ```
-
-### Dashboard React (senza modelli ML)
-
-```bash
-python -m app.export_web_data          # (ri)genera app/web/models.json dai dati processati
-cd app/web && python -m http.server 8000   # poi apri http://localhost:8000
-```
-
-La versione JSX usa una regressione lineare (coefficienti in `models.json`), quindi i prezzi stimati
-differiscono un po' da quelli della Random Forest della dashboard Dash.
-

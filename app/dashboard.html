@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="it">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vehicle Price Monitor</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2032%2032%27%3E%3Crect%20width%3D%2732%27%20height%3D%2732%27%20rx%3D%276%27%20fill%3D%27%23101a33%27/%3E%3Ctext%20x%3D%2716%27%20y%3D%2723%27%20font-size%3D%2720%27%20font-weight%3D%27900%27%20text-anchor%3D%27middle%27%20fill%3D%27%23e0a82e%27%20font-family%3D%27Georgia%2Cserif%27%3E%E2%82%AC%3C/text%3E%3C/svg%3E">
+<meta name="description" content="Quanto vale davvero un'auto usata? Confronto dei prezzi e stima sovra/sotto prezzo.">
+<style>
+/* Stile di FedeGambe.github.io: carta calda con grana, Georgia per i titoli, Inter per il testo, monospace maiuscolo per le etichette,
+   righe nere da 3px, pillole. COLORI DERIVATI DALLA COVER: --c2 = colore caldo (il pezzo che colora il titolo <em>, in genere a metà del gradiente del sole/forma principale),
+   --c1 = colore freddo/secondario della cover (linee, griglia). Versione chiara = scurito per il contrasto, scura = chiaro. --c1 = data-parte="a", --c2 = data-parte="b".
+   Fondi scuri (--g*, --bg, --surface) = il colore di fondo della cover, schiarito di pochissimo. Cambia solo le variabili :root. */
+:root{
+  --barra:60px;
+  --cover:#101a33; --c2-cover:#e0a82e;  /* fondo della cover e colore caldo sulla cover (uguali nei due temi) */
+  --g1:#fff3dc; --g2:#f1dca8; --g3:#e8dfc9; --bg:#f6f1e6; --surface:#fcf9f2; --ink:#1c1b19; --ink-2:#44413a; --ink-3:#6b665c; --line:#d9d1c0;
+  --c1:#d6452a; --c1-ink:#b2321b; --c2:#e0a82e; --c2-ink:#8f6208; --argento:#c9bda3;
+  --accent:var(--c1-ink); --accent-soft:#f6dcd5; --c2-soft:#f8ecc9;
+  --grigio:#6b665c; --grigio-linea:#a39c8b;
+  --f-display:Georgia,"Times New Roman",serif;
+  --f-body:"Inter",system-ui,sans-serif;
+  --f-data:ui-monospace,Consolas,monospace;
+}
+:root[data-theme="dark"]{
+  --g1:#0e1630; --g2:#0b1228; --g3:#070b18; --bg:#0a0f1f; --surface:#101830; --ink:#efe9dc; --ink-2:#c4bdae; --ink-3:#9a9486; --line:#26304d;
+  --c1:#ee6a4d; --c1-ink:#ff8266; --c2:#e0a82e; --c2-ink:#efbe4f; --argento:#5d6684;
+  --accent-soft:#2a1713; --c2-soft:#2e2610; --grigio:#9a9486; --grigio-linea:#6b6f82;
+  color-scheme:dark; }
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:calc(var(--barra) + 20px)}
+@media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} }
+@media (min-width:900px) and (pointer:fine) and (prefers-reduced-motion: no-preference){ html{scroll-snap-type:y mandatory} }
+@media (pointer:coarse) and (prefers-reduced-motion: no-preference){ html{scroll-snap-type:y proximity} }
+.copertina,.capitolo{scroll-snap-align:start}
+footer{scroll-snap-align:end}
+body{margin:0; color:var(--ink); font:16px/1.6 var(--f-body); min-height:100vh;
+  background:radial-gradient(900px 600px at 10% 0%,var(--g1),transparent 70%),radial-gradient(900px 700px at 100% 100%,var(--g2),transparent 70%),var(--g3); background-attachment:fixed}
+body::before{content:""; position:fixed; inset:0; pointer-events:none; z-index:-1; opacity:.55;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .45 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E")}
+.impianto{max-width:1320px; margin:0 auto; padding-inline:20px; padding-block:40px 80px;
+  display:grid; grid-template-columns:minmax(0,1fr); gap:0 48px}
+@media (min-width:1180px){ .impianto{grid-template-columns:230px minmax(0,1fr)} }
+main{min-width:0; max-width:1020px}
+h1,h2{font-family:var(--f-display); line-height:1; text-wrap:balance; margin:0; letter-spacing:-.03em}
+h1{font-size:clamp(2.4rem,7vw,5.2rem); font-weight:800}
+h1 em{color:var(--c2); font-style:italic}
+h2{font-size:clamp(1.7rem,3.6vw,2.5rem); font-weight:800; padding-bottom:12px; border-bottom:3px solid var(--ink)}
+h2::before{content:attr(data-n); display:block; font:600 .72rem/1 var(--f-data); letter-spacing:.08em; text-transform:uppercase; color:var(--argento); margin-bottom:10px}
+.parte-a h2::before{color:var(--c1)} .parte-b h2::before{color:var(--c2)}
+.capitolo{margin-top:140px; padding-bottom:48px}
+.capitolo:first-child{margin-top:0}
+p{margin:20px 0}
+h2 + p{margin-top:20px}
+strong{font-weight:600}
+a{color:var(--accent); text-decoration-thickness:1px; text-underline-offset:3px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--c2); outline-offset:2px}
+code{font-family:var(--f-data); font-size:.88em; background:var(--accent-soft); padding:1px 6px; border-radius:3px}
+ul{padding-left:22px} li{margin:8px 0}
+
+/* Indice */
+.indice{font-size:.9rem}
+.indice .titolo{font:600 .72rem/1 var(--f-data); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); margin-bottom:12px}
+.indice ol{list-style:none; margin:0; padding:0}
+.indice li{margin:0 0 4px}
+.indice a{color:var(--ink); text-decoration:none; display:block; padding:4px 0 4px 10px; border-left:2px solid transparent; font:600 .8rem/1.35 var(--f-data); letter-spacing:.02em}
+.indice a:hover{color:var(--c1-ink)}
+.indice a.attivo{border-left-color:var(--c1); color:var(--c1-ink)}
+.indice .link-b:hover{color:var(--c2-ink)}
+.indice .link-b.attivo{border-left-color:var(--c2); color:var(--c2-ink)}
+.indice .gruppo-grigio a:hover{color:var(--grigio)}
+.indice .gruppo-grigio a.attivo{border-left-color:var(--grigio-linea); color:var(--grigio)}
+@media (min-width:1180px){
+  .indice{position:sticky; top:calc(var(--barra) + 20px); align-self:start; max-height:calc(100vh - var(--barra) - 40px); overflow:auto; padding-top:8px}
+}
+@media (max-width:1179px){
+  .indice{position:fixed; z-index:19; top:var(--barra); left:0; right:0; max-height:calc(100dvh - var(--barra)); overflow:auto;
+    background:var(--surface); border-bottom:1px solid var(--line); box-shadow:0 14px 28px #0003; padding:18px 20px 24px; display:none}
+  .indice.aperto{display:block}
+  .indice > ol{columns:2; column-gap:28px}
+  .indice li{break-inside:avoid}
+}
+@media (max-width:560px){ .indice > ol{columns:1} }
+
+/* Barra in alto */
+.barra{position:fixed; z-index:20; inset:0 0 auto; height:calc(var(--barra) + env(safe-area-inset-top,0px)); padding:env(safe-area-inset-top,0px) 20px 0;
+  display:flex; align-items:center; gap:16px; transition:background .35s, box-shadow .35s; --colore-parte:var(--grigio-linea)}
+.barra[data-parte="a"]{--colore-parte:var(--c1)} .barra[data-parte="b"]{--colore-parte:var(--c2)}
+.barra.compatta{background:color-mix(in srgb, var(--bg) 60%, transparent); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); box-shadow:0 1px 0 var(--line)}
+.dove{flex:1; min-width:0; opacity:0; transform:translateY(-6px); transition:opacity .25s, transform .25s; pointer-events:none}
+.barra.compatta .dove{opacity:1; transform:none; pointer-events:auto}
+.dove .progetto{display:block; width:max-content; max-width:100%; font:600 .68rem/1.3 var(--f-data); letter-spacing:.08em; text-transform:uppercase;
+  color:var(--ink-3); text-decoration:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.dove .progetto:hover{color:var(--ink)}
+.posizione{font:700 1rem/1.3 var(--f-display); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; position:relative; padding-left:16px}
+.posizione::before{content:""; position:absolute; left:0; top:.4em; width:.55em; height:.55em; border-radius:50%; background:var(--colore-parte)}
+.azioni{display:flex; gap:8px; flex:none; margin-left:auto}
+.bottone-barra{font:600 .8rem/1 var(--f-data); letter-spacing:.08em; text-transform:uppercase; color:var(--ink); background:none; border:1px solid var(--ink); border-radius:999px;
+  padding:8px 12px; cursor:pointer; white-space:nowrap}
+.bottone-barra{text-decoration:none; display:inline-flex; align-items:center; gap:8px}
+.bottone-barra:hover{background:var(--ink); color:var(--bg)}
+.barra:not(.compatta) .bottone-barra{color:#efe3c8; border-color:#efe3c8}
+.barra:not(.compatta) .bottone-barra:hover{background:#efe3c8; color:var(--cover)}
+#apri-indice{display:none}
+@media (max-width:1179px){ #apri-indice{display:inline-block} }
+.avanzamento{position:absolute; left:0; bottom:0; width:100%; height:3px; background:var(--colore-parte);
+  transform-origin:left; transform:scaleX(var(--avanzamento,0)); opacity:0; transition:opacity .25s}
+.barra.compatta .avanzamento{opacity:1}
+@media (prefers-reduced-motion: reduce){ .barra,.dove,.avanzamento{transition:none} }
+
+/* Copertina a schermo intero: l'illustrazione riempie lo schermo, titolo in alto a tutta larghezza, diciture in basso */
+.copertina{position:relative; display:flex; flex-direction:column; justify-content:space-between; height:100svh; min-height:560px; overflow:hidden;
+  background:var(--cover); color:#efe3c8; --margine:max(20px, calc(50vw - 640px)); border-bottom:3px solid var(--ink)}
+.bauhaus{position:absolute; inset:0; width:100%; height:100%; z-index:0}
+.slide-testa{position:relative; z-index:1; padding:calc(var(--barra) + clamp(16px,3vw,48px)) var(--margine) 0;
+  opacity:calc(1 - 1.3 * var(--p,0)); transform:translateY(calc(var(--p,0) * 40px))}
+.slide-testa h1{font-size:clamp(2.4rem,7.5vw,5.6rem); line-height:.95; letter-spacing:-.04em; text-wrap:pretty;
+  transform-origin:left bottom; transform:scale(calc(1 - .3 * var(--p,0)))}
+.copertina h1 em{color:var(--c2-cover)}
+.copertina .sottotitolo{font-size:clamp(1rem,1.7vw,1.2rem); margin:20px 0 0; color:#d9ccaf}
+.copertina .sottotitolo p{margin:0}
+.copertina .sottotitolo strong{color:#efe3c8}
+
+.tags{display:flex; flex-wrap:wrap; gap:6px; margin-top:20px}
+.tags span{font:600 .7rem/1 var(--f-data); border:1px solid #ffffff55; padding:5px 8px; border-radius:999px; color:#fffd}
+
+/* Tabelle e grafici */
+.tabella{overflow-x:auto; margin:16px 0; border:1px solid var(--line); border-radius:6px; background:var(--surface)}
+table{border-collapse:collapse; width:100%; font-size:.86rem; line-height:1.4}
+th,td{padding:8px 12px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{font:600 .72rem/1.4 var(--f-data); color:var(--ink-3); background:var(--bg); letter-spacing:.06em; text-transform:uppercase; white-space:nowrap}
+tbody tr:hover td{background:color-mix(in srgb, var(--accent-soft) 55%, transparent)}
+.parte-b tbody tr:hover td{background:color-mix(in srgb, var(--c2-soft) 55%, transparent)}
+figure{margin:20px 0 8px; background:var(--cover); border-radius:6px; padding:8px; min-width:0; overflow:hidden; box-shadow:0 18px 40px -22px #000a}  /* cornice scura in entrambi i temi */
+.conclusione{border-left:4px solid var(--c2); background:var(--surface); padding:6px 18px; border-radius:0 6px 6px 0; margin:20px 0; box-shadow:0 1px 0 var(--line), 0 12px 30px -18px rgba(28,27,25,.35)}
+footer{margin-top:80px; padding-top:18px; border-top:3px solid var(--ink); font:600 .78rem/1.6 var(--f-data); text-transform:uppercase; letter-spacing:.06em; color:var(--ink-3)}
+footer a{color:inherit} footer a:hover{color:var(--c2)}
+.logo-cover{position:absolute; z-index:1; right:var(--margine); bottom:0; padding:0 0 26px; opacity:calc(1 - 1.3 * var(--p,0))}
+.logo-cover::before{content:""; position:absolute; z-index:-1; right:calc(-1 * var(--margine)); bottom:0; width:min(620px,90vw); height:340px;
+  background:radial-gradient(ellipse at 100% 100%, var(--cover) 0%, color-mix(in srgb, var(--cover) 82%, transparent) 30%, transparent 70%)}
+.logo-cover svg{display:block}
+.firma{display:flex; align-items:center; gap:12px; color:var(--ink); text-decoration:none; font:600 .9rem/1 var(--f-data); letter-spacing:.06em}
+.firma:hover{color:var(--c2)}
+
+/* Dashboard */
+.form{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:14px 18px; margin:24px 0}
+.form label{display:block; font:600 .72rem/1 var(--f-data); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3)}
+.form input,.form select{display:block; width:100%; margin-top:8px; padding:10px 12px; font:500 1rem var(--f-body); color:var(--ink); background:var(--surface); border:1px solid var(--line); border-radius:6px}
+.form input:focus,.form select:focus{outline:2px solid var(--c2); outline-offset:1px}
+.bottone{font:700 .85rem/1 var(--f-data); letter-spacing:.08em; text-transform:uppercase; color:var(--cover); background:var(--c2); border:0; border-radius:999px; padding:14px 22px; cursor:pointer}
+.bottone:hover{filter:brightness(1.08)}
+.esito{margin:24px 0; padding:18px 22px; border-left:6px solid var(--grigio-linea); background:var(--surface); border-radius:0 6px 6px 0}
+.esito.buono{border-color:#3fa66b} .esito.cattivo{border-color:var(--c1)}
+.esito strong.verdetto{display:block; font:800 1.6rem/1.15 var(--f-display); margin-bottom:6px}
+.esito small{display:block; color:var(--ink-3); margin-top:8px}
+td.num{text-align:right; font-variant-numeric:tabular-nums}
+td.pos{color:#3fa66b; font-weight:600}
+</style>
+<script>try{document.documentElement.dataset.theme=localStorage.theme||"dark"}catch{document.documentElement.dataset.theme="dark"}</script>
+
+<header class="barra" id="barra">
+  <div class="dove">
+    <a class="progetto" href="#copertina">Vehicle Price Monitor</a>
+    <div class="posizione" id="barra-capitolo" aria-live="polite"></div>
+  </div>
+  <nav class="azioni" aria-label="Navigazione">
+    <a class="bottone-barra" href="https://progetti.federicogamberini.it/"><svg viewBox="0 0 341.61 344.35" width="16" height="16" aria-hidden="true"><path fill="var(--c2)" d="M305.77,314.84c-1.08-1.67-1.77-2.62-2.34-3.65c-3.02-5.39-5.94-10.83-9.02-16.18c-17.29-30.05-43.07-48.09-77.1-54.5 c-17.79-3.35-35.74-5.17-53.8-6.14c-21.84-1.18-43.73-1.99-65.32-6c-9.5-1.76-18.94-3.73-27.98-7.29 c-8.04-3.16-15.26-7.61-21.27-13.87c-13.08-13.63-15.82-29.73-10.89-47.44c2.89-10.41,8.84-18.71,17.92-24.85 c10.62-7.18,21.95-12.65,34.39-15.81c2.06-0.52,4.09-1.18,6.13-1.81c0.3-0.09,0.56-0.34,1.29-0.81 c-9.36-6.59-18.86-12.66-27.69-21.06c10.9-3.7,21.14-6.76,31.45-9.97c0.99,1.14,1.81,2.04,2.59,2.97 c13.91,16.46,31.6,23.71,53.08,22.12c16.35-1.21,30.14-7.47,40.84-20.05c6.12-7.19,10.46-15.41,13.36-24.36 c1.45-4.47,2.43-9.1,3.59-13.66c0.36-1.4,0.63-2.83,1-4.55c18.56-6.79,37.16-13.59,56.5-20.67c-0.23,2.67-0.22,4.76-0.61,6.76 c-8.53,44.01-33.56,73.26-77.08,85.81c-16.26,4.69-32.94,6.71-49.81,7.55c-15.23,0.76-30.52,1.1-45.49,4.59 c-7.02,1.64-13.98,3.55-20.22,7.22c-3.33,1.96-6.64,4.34-9.17,7.23c-7.64,8.72-5.53,19.97,4.64,25.58 c6.25,3.45,13.13,5.38,20.15,6.33c10.45,1.41,20.95,2.44,31.45,3.35c14.2,1.23,28.42,2.13,42.62,3.29 c13.31,1.09,26.63,2.08,39.89,3.6c15.86,1.82,31.55,4.74,46.46,10.71c32.06,12.85,49.3,37.31,54.57,70.78 c2.14,13.57,1.06,27.09-2.51,40.38C307.06,311.7,306.51,312.88,305.77,314.84z"/></svg><span>← Progetti</span></a>
+    <button class="bottone-barra" id="apri-indice" type="button" aria-controls="indice" aria-expanded="false">Indice</button>
+    <button class="bottone-barra" id="tema" type="button" aria-label="Cambia tema chiaro/scuro">Tema</button>
+  </nav>
+  <div class="avanzamento" aria-hidden="true"></div>
+</header>
+
+<section class="copertina" id="copertina">
+  <div class="slide-testa">
+    <h1>Vehicle <em>Price</em> Monitor</h1>  <!-- TITOLO_HTML = TITOLO con 1-2 parole chiave in <em>…</em> (corsivo arancio); TITOLO resta testo semplice -->
+    <div class="sottotitolo"><p>Quanto vale davvero un'auto usata? Scopri se un annuncio è <strong>sovra o sotto prezzato</strong>.</p></div>
+    <!-- TAG: 2-4 temi/tecnologie del repo (come nei progetti di FedeGambe.github.io): <span>Scraping</span><span>Previsioni</span> -->
+    <div class="tags"><span>Web scraping</span><span>Machine Learning</span><span>Prezzi auto usate</span></div>
+  </div>
+  <!-- COVER: SVG formato "schermo" (1600x900) dalla skill copertine, con class="bauhaus" e preserveAspectRatio="xMidYMax slice" -->
+  <svg class="bauhaus" preserveAspectRatio="xMidYMax slice" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900"><defs><filter id="grana"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2"/><feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0"/></filter></defs><rect width="1600" height="900" fill="#101a33"/><svg x="0" y="342" width="1600" height="558" viewBox="0 0 1600 558" overflow="hidden"><g transform="translate(800 0) scale(1 1)"><text x="0" y="158" font-family="Archivo, 'Archivo Black', 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="177" fill="#e0a82e" text-anchor="middle" textLength="480" lengthAdjust="spacingAndGlyphs">AUTO</text></g><g transform="translate(320 0) scale(-0.5 1)"><text x="0" y="158" font-family="Archivo, 'Archivo Black', 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="177" fill="#e0a82e" text-anchor="middle" textLength="480" lengthAdjust="spacingAndGlyphs">AUTO</text></g><g transform="translate(1280 0) scale(0.5 1)"><text x="0" y="158" font-family="Archivo, 'Archivo Black', 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="177" fill="#e0a82e" text-anchor="middle" textLength="480" lengthAdjust="spacingAndGlyphs">AUTO</text></g><g transform="translate(112 0) scale(-0.18 1)"><text x="0" y="158" font-family="Archivo, 'Archivo Black', 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="177" fill="#e0a82e" text-anchor="middle" textLength="480" lengthAdjust="spacingAndGlyphs">AUTO</text></g><g transform="translate(1488 0) scale(0.18 1)"><text x="0" y="158" font-family="Archivo, 'Archivo Black', 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="177" fill="#e0a82e" text-anchor="middle" textLength="480" lengthAdjust="spacingAndGlyphs">AUTO</text></g><g transform="translate(800 0) scale(1 1)"><text x="0" y="344" font-family="Archivo, 'Archivo Black', 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="177" fill="#d6452a" text-anchor="middle" textLength="480" lengthAdjust="spacingAndGlyphs">AUTO</text></g><g transform="translate(320 0) scale(-0.5 1)"><text x="0" y="344" font-family="Archivo, 'Archivo Black', 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="177" fill="#d6452a" text-anchor="middle" textLength="480" lengthAdjust="spacingAndGlyphs">AUTO</text></g><g transform="translate(1280 0) scale(0.5 1)"><text x="0" y="344" font-family="Archivo, 'Archivo Black', 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="177" fill="#d6452a" text-anchor="middle" textLength="480" lengthAdjust="spacingAndGlyphs">AUTO</text></g><g transform="translate(112 0) scale(-0.18 1)"><text x="0" y="344" font-family="Archivo, 'Archivo Black', 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="177" fill="#d6452a" text-anchor="middle" textLength="480" lengthAdjust="spacingAndGlyphs">AUTO</text></g><g transform="translate(1488 0) scale(0.18 1)"><text x="0" y="344" font-family="Archivo, 'Archivo Black', 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="177" fill="#d6452a" text-anchor="middle" textLength="480" lengthAdjust="spacingAndGlyphs">AUTO</text></g><g transform="translate(800 0) scale(1 1)"><text x="0" y="530" font-family="Archivo, 'Archivo Black', 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="177" fill="#e0a82e" text-anchor="middle" textLength="480" lengthAdjust="spacingAndGlyphs">AUTO</text></g><g transform="translate(320 0) scale(-0.5 1)"><text x="0" y="530" font-family="Archivo, 'Archivo Black', 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="177" fill="#e0a82e" text-anchor="middle" textLength="480" lengthAdjust="spacingAndGlyphs">AUTO</text></g><g transform="translate(1280 0) scale(0.5 1)"><text x="0" y="530" font-family="Archivo, 'Archivo Black', 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="177" fill="#e0a82e" text-anchor="middle" textLength="480" lengthAdjust="spacingAndGlyphs">AUTO</text></g><g transform="translate(112 0) scale(-0.18 1)"><text x="0" y="530" font-family="Archivo, 'Archivo Black', 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="177" fill="#e0a82e" text-anchor="middle" textLength="480" lengthAdjust="spacingAndGlyphs">AUTO</text></g><g transform="translate(1488 0) scale(0.18 1)"><text x="0" y="530" font-family="Archivo, 'Archivo Black', 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="177" fill="#e0a82e" text-anchor="middle" textLength="480" lengthAdjust="spacingAndGlyphs">AUTO</text></g></svg><rect width="1600" height="900" filter="url(#grana)" opacity=".35"/></svg>
+  <a class="logo-cover" href="https://progetti.federicogamberini.it/" aria-label="Federico Gamberini, progetti"><svg viewBox="0 0 341.61 344.35" width="44" height="44" aria-hidden="true"><path fill="#fff" d="M305.77,314.84c-1.08-1.67-1.77-2.62-2.34-3.65c-3.02-5.39-5.94-10.83-9.02-16.18c-17.29-30.05-43.07-48.09-77.1-54.5 c-17.79-3.35-35.74-5.17-53.8-6.14c-21.84-1.18-43.73-1.99-65.32-6c-9.5-1.76-18.94-3.73-27.98-7.29 c-8.04-3.16-15.26-7.61-21.27-13.87c-13.08-13.63-15.82-29.73-10.89-47.44c2.89-10.41,8.84-18.71,17.92-24.85 c10.62-7.18,21.95-12.65,34.39-15.81c2.06-0.52,4.09-1.18,6.13-1.81c0.3-0.09,0.56-0.34,1.29-0.81 c-9.36-6.59-18.86-12.66-27.69-21.06c10.9-3.7,21.14-6.76,31.45-9.97c0.99,1.14,1.81,2.04,2.59,2.97 c13.91,16.46,31.6,23.71,53.08,22.12c16.35-1.21,30.14-7.47,40.84-20.05c6.12-7.19,10.46-15.41,13.36-24.36 c1.45-4.47,2.43-9.1,3.59-13.66c0.36-1.4,0.63-2.83,1-4.55c18.56-6.79,37.16-13.59,56.5-20.67c-0.23,2.67-0.22,4.76-0.61,6.76 c-8.53,44.01-33.56,73.26-77.08,85.81c-16.26,4.69-32.94,6.71-49.81,7.55c-15.23,0.76-30.52,1.1-45.49,4.59 c-7.02,1.64-13.98,3.55-20.22,7.22c-3.33,1.96-6.64,4.34-9.17,7.23c-7.64,8.72-5.53,19.97,4.64,25.58 c6.25,3.45,13.13,5.38,20.15,6.33c10.45,1.41,20.95,2.44,31.45,3.35c14.2,1.23,28.42,2.13,42.62,3.29 c13.31,1.09,26.63,2.08,39.89,3.6c15.86,1.82,31.55,4.74,46.46,10.71c32.06,12.85,49.3,37.31,54.57,70.78 c2.14,13.57,1.06,27.09-2.51,40.38C307.06,311.7,306.51,312.88,305.77,314.84z"/></svg></a>
+</section>
+
+<div class="impianto">
+<nav class="indice" id="indice" aria-label="Indice">
+  <div class="titolo">Indice</div>
+  <!-- una <li><a href="#cN">titolo</a></li> per capitolo, stesso testo di data-titolo. Capitoli data-parte="b": <a class="link-b" ...>. Capitolo di sintesi: <li class="gruppo-grigio"> -->
+  <ol><li class="gruppo-grigio"><a class="" href="#c0">Sintesi</a></li><li class=""><a class="" href="#c1">1. Calcola</a></li><li class=""><a class="link-b" href="#c2">2. Migliori offerte</a></li><li class="gruppo-grigio"><a class="" href="#c3">3. Come funziona</a></li><li class="gruppo-grigio"><a class="" href="#c4">4. Aggiornare i dati</a></li></ol>
+</nav>
+<main>
+<!-- Un <section> per capitolo. id="c0","c1",...; data-parte: "" (grigio, es. sintesi), "a" (c1) o "b" (c2); la classe parte-a / parte-b va in class.
+<section class="capitolo parte-a" id="c1" data-titolo="1. Titolo" data-parte="a"><h2 data-n="Capitolo 01">Titolo</h2>
+  <p>Testo.</p>
+  <div class="tabella"><table>...</table></div>
+  <figure>grafico/immagine</figure>
+  <div class="conclusione"><p>Riquadro di sintesi.</p></div>
+</section>
+-->
+
+<section class="capitolo" id="c0" data-titolo="Sintesi" data-parte=""><h2 data-n="Sintesi">Sovra o sotto prezzata?</h2>
+  <p>Vehicle Price Monitor raccoglie gli annunci di auto usate da <strong>Autoscout24, Automobile.it, Autosupermarket e Subito</strong>,
+  li pulisce e stima il prezzo di mercato con modelli statistici. Se il prezzo stimato è più alto di quello richiesto, l'auto è <strong>sotto prezzata</strong>: un buon affare.</p>
+  <div class="tabella"><table><thead><tr><th>Modello</th><th>Annunci</th><th>Prezzo medio</th><th>R² Random Forest</th><th>R² lineare</th><th>Dati del</th></tr></thead><tbody><tr><td>Audi A3</td><td class='num'>3350</td><td class='num'>23.788 €</td><td class='num'>0.72</td><td class='num'>0.59</td><td>07/10/2026</td></tr><tr><td>BMW Serie 1</td><td class='num'>2004</td><td class='num'>29.103 €</td><td class='num'>0.79</td><td class='num'>0.69</td><td>07/10/2026</td></tr><tr><td>Mercedes Classe A</td><td class='num'>3043</td><td class='num'>30.405 €</td><td class='num'>0.92</td><td class='num'>0.84</td><td>07/10/2026</td></tr><tr><td>Opel Corsa</td><td class='num'>4119</td><td class='num'>12.772 €</td><td class='num'>0.70</td><td class='num'>0.56</td><td>07/10/2026</td></tr></tbody></table></div>
+</section>
+<section class="capitolo parte-a" id="c1" data-titolo="1. Calcola" data-parte="a"><h2 data-n="Capitolo 01">Calcola il prezzo giusto</h2>
+  <p>Inserisci i dati dell'annuncio che hai trovato: il calcolo avviene nel tuo browser.</p>
+  <div class="form">
+    <label>Modello<select id="f-modello"><option value='Audi_A3'>Audi A3</option><option value='BMW_Serie_1'>BMW Serie 1</option><option value='Mercedes_Classe_A'>Mercedes Classe A</option><option value='Opel_Corsa'>Opel Corsa</option></select></label>
+    <label>Prezzo annuncio (€)<input id="f-prezzo" type="number" min="0" value="10000"></label>
+    <label>Anni<input id="f-anni" type="number" min="0" max="30" value="3"></label>
+    <label>Chilometraggio<input id="f-km" type="number" min="0" value="50000"></label>
+    <label>CV<input id="f-cv" type="number" min="0" value="100"></label>
+    <label>Cambio<select id="f-cambio"><option value="0">Manuale</option><option value="1">Automatico</option></select></label>
+    <label>Allestimento<select id="f-allest"></select></label>
+    <label>Carburante<select id="f-carb"></select></label>
+    <label>Macro regione<select id="f-area"><option>Nord-est</option><option>Nord-ovest</option><option>Centro</option><option>Sud</option><option>Isole</option></select></label>
+  </div>
+  <button class="bottone" id="calcola" type="button">Calcola</button>
+  <div class="esito" id="esito" hidden aria-live="polite"></div>
+</section>
+<section class="capitolo parte-b" id="c2" data-titolo="2. Migliori offerte" data-parte="b"><h2 data-n="Capitolo 02">Le migliori offerte</h2>
+  <p>Annunci sotto prezzati secondo la Random Forest, ordinati per <strong>indice di appetibilità</strong> (prezzo, km, anni, distanza, allestimento, cambio, CV: pesi in <code>data/config/utente.toml</code>).</p>
+  <div class="form"><label>Modello<select id="o-modello"><option value='Audi_A3'>Audi A3</option><option value='BMW_Serie_1'>BMW Serie 1</option><option value='Mercedes_Classe_A'>Mercedes Classe A</option><option value='Opel_Corsa'>Opel Corsa</option></select></label></div>
+  <div class="tabella"><table><thead><tr><th>Indice</th><th>Prezzo</th><th>Previsto</th><th>Risparmio</th><th>Anni</th><th>Km</th><th>Dist. km</th><th>Allestimento</th><th>Alim.</th><th></th></tr></thead><tbody id="top-corpo"></tbody></table></div>
+</section>
+<section class="capitolo" id="c3" data-titolo="3. Come funziona" data-parte=""><h2 data-n="Capitolo 03">Come funziona</h2>
+  <p>Due modelli per ogni auto, addestrati sugli annunci raccolti: una <strong>Random Forest</strong> (più precisa, usata per la classifica) e una <strong>regressione lineare</strong>
+  (i cui coefficienti sono incorporati in questa pagina, così il calcolatore funziona senza caricare nulla). Per questo il calcolatore può differire un po' dalla classifica.
+  L'errore tipico (RMSE) è mostrato sotto ogni stima: se la differenza è più piccola dell'errore, il prezzo è <em>in linea</em>.</p>
+  <div class="conclusione"><p>Le stime valgono per i filtri usati nello scraping (prezzo, anni, km) e per il comune di residenza scelto.</p></div>
+</section>
+<section class="capitolo" id="c4" data-titolo="4. Aggiornare i dati" data-parte=""><h2 data-n="Capitolo 04">Aggiornare i dati</h2>
+  <p>Dalla cartella del progetto:</p>
+  <ul><li><code>python -m vehicle_price_monitor run Opel_Corsa</code>: scarica, pulisce, addestra e rigenera questa pagina.</li>
+  <li><code>python -m vehicle_price_monitor top Opel_Corsa --prezzo-max 12000 --dist-max 150</code>: classifica nel terminale con i tuoi filtri.</li>
+  <li><code>python -m vehicle_price_monitor -h</code>: tutti i comandi. Nuove auto: aggiungi <code>data/config/Marca_Modello.toml</code>.</li></ul>
+</section>
+<script type="application/json" id="dati">[{"nome": "Audi_A3", "titolo": "Audi A3", "n": 3350, "prezzo_medio": 23788, "aggiornato": "07/10/2026", "cols": ["Anni", "Chilometraggio", "Cambio", "CV", "is_Diesel vs Benzina", "is_Ibrido vs Benzina", "is_Metano vs Benzina", "is_Elettrico vs Benzina", "is_sport vs base", "is_performance vs base", "is_middle vs base", "is NO vs NE", "is Centro vs NE", "is Sud_Isole vs NE"], "coef": [-929.8750030942352, -0.03172059081170201, 1236.2422181324882, 17.718509819886673, 154.06253506146223, -89.64616006317056, -145.67201759243582, -428.6089419525429, 2708.72444285789, 392.62917892439003, 870.0958720526121, -167.41387804702697, 162.77594912699186, 395.0429393875362], "intercept": 25257.088295683763, "r2_lin": 0.5914767907451695, "rmse_lin": 2409.7636214942027, "allestimenti": {"S": "performance", "RS": "performance", "S line": "sport", "Advanced": "middle", "Business Advanced": "middle", "Identity": "middle", "Sport": "middle", "Design": "middle", "Business": "base", "Business Plus": "base"}, "carburanti": ["Benzina", "Diesel", "Elettrico", "Ibrido", "Metano"], "top": [{"indice": 0.82, "prezzo": 8900, "previsto": 12800, "anni": 3, "km": 65000, "dist": 326, "allest": "S", "carb": "Diesel", "link": "https://www.subito.it/auto/audi-a3-spb-30-tdi-s-tronic-aut-sinistrata-23-roma-662813847.htm"}, {"indice": 0.82, "prezzo": 8900, "previsto": 23094, "anni": 6, "km": 70000, "dist": 213, "allest": "S", "carb": "Ibrido", "link": "https://www.subito.it/auto/audi-a3-spb-35-tfsi-s-tronic-2020-sinistrata-varese-653244562.htm"}, {"indice": 0.78, "prezzo": 15000, "previsto": 17022, "anni": 6, "km": 161000, "dist": 139, "allest": "S line", "carb": "Diesel", "link": "https://www.autoscout24.it/annunci/audi-a3-sportback-35-2-0-tdi-s-line-edition-s-tronic-diesel-cat_ma9mo1624-cfda4ce0-ef5e-4a31-9a80-d4a519405651"}, {"indice": 0.78, "prezzo": 14900, "previsto": 15608, "anni": 6, "km": 144230, "dist": 141, "allest": "S", "carb": "Diesel", "link": "https://www.autoscout24.it/annunci/audi-a3-spb-35-tdi-s-tronic-diesel-grigio-cat_ma9mo1624-9b27ef92-fe53-4f00-82ff-d1afa72af6e3"}, {"indice": 0.78, "prezzo": 15699, "previsto": 16655, "anni": 6, "km": 135000, "dist": 77, "allest": "S", "carb": "Ibrido", "link": "https://www.autoscout24.it/annunci/audi-a3-40-1-4-tfsi-e-tron-admired-s-tronic-elettrica-benzina-bianco-cat_ma9mo1624-7532158a-44db-4c8c-b90a-d0f37d5979cc"}, {"indice": 0.78, "prezzo": 15500, "previsto": 15901, "anni": 6, "km": 130000, "dist": 127, "allest": "S", "carb": "Diesel", "link": "https://www.autoscout24.it/annunci/audi-a3-sedan-35-tdi-s-tronic-diesel-blu-azzurro-cat_ma9mo1624-b5bf145c-6563-411b-b032-f3627907b958"}, {"indice": 0.78, "prezzo": 15900, "previsto": 19308, "anni": 6, "km": 149832, "dist": 91, "allest": "S line", "carb": "Diesel", "link": "https://www.autoscout24.it/annunci/audi-a3-a3-sportback-35-2-0-tdi-admired-sline-150cv-s-tronic-diesel-bianco-cat_ma9mo1624-621f7ecc-b360-429e-a8fe-d73d259042f1"}, {"indice": 0.78, "prezzo": 16000, "previsto": 17035, "anni": 6, "km": 162000, "dist": 65, "allest": "S line", "carb": "Diesel", "link": "https://www.autoscout24.it/annunci/audi-a3-s-line-diesel-grigio-cat_ma9mo1624-85bada52-e818-4ed4-a45f-ee27a332b7a3"}, {"indice": 0.78, "prezzo": 15000, "previsto": 15232, "anni": 6, "km": 162000, "dist": 50, "allest": "S", "carb": "Diesel", "link": "https://www.automobile.it/poviglio-audi-a3-spb-35-tdi-s-tronic-admired/182545697"}, {"indice": 0.78, "prezzo": 15500, "previsto": 15901, "anni": 6, "km": 130000, "dist": 127, "allest": "S", "carb": "Diesel", "link": "https://www.automobile.it/venezia-audi-a3-sedan-35-tdi-s-tronic/183536990"}, {"indice": 0.78, "prezzo": 17500, "previsto": 17623, "anni": 1, "km": 19000, "dist": 415, "allest": "S", "carb": "Benzina", "link": "https://www.automobile.it/cassino-audi-s3-acconto-17-500-noleggio-riscatto-scoring/184584864"}, {"indice": 0.78, "prezzo": 17500, "previsto": 17624, "anni": 1, "km": 16000, "dist": 415, "allest": "S", "carb": "Benzina", "link": "https://www.automobile.it/cassino-audi-s3-acconto-17-500-noleggio-riscatto-scoring/184584886"}, {"indice": 0.78, "prezzo": 17500, "previsto": 17623, "anni": 1, "km": 19000, "dist": 415, "allest": "S", "carb": "Benzina", "link": "https://www.subito.it/auto/audi-s3-acconto-17-500-noleggio-riscatto-no-scori-frosinone-662757750.htm"}, {"indice": 0.78, "prezzo": 17500, "previsto": 17624, "anni": 1, "km": 16000, "dist": 415, "allest": "S", "carb": "Benzina", "link": "https://www.subito.it/auto/audi-s3-acconto-17-500-noleggio-riscatto-no-scori-frosinone-662758556.htm"}, {"indice": 0.78, "prezzo": 15500, "previsto": 15901, "anni": 6, "km": 130000, "dist": 127, "allest": "S", "carb": "Diesel", "link": "https://www.subito.it/auto/audi-a3-sedan-35-tdi-s-tronic-venezia-645235551.htm"}, {"indice": 0.78, "prezzo": 14900, "previsto": 15608, "anni": 6, "km": 144230, "dist": 116, "allest": "S", "carb": "Diesel", "link": "https://www.subito.it/auto/audi-a3-spb-35-tdi-s-tronic-brescia-653666234.htm"}, {"indice": 0.78, "prezzo": 16000, "previsto": 17090, "anni": 2, "km": 164000, "dist": 186, "allest": "S", "carb": "Diesel", "link": "https://www.subito.it/auto/audi-a3-spd-30-tdi-s-tronic-s-line-gancio-traino-alessandria-656887976.htm"}, {"indice": 0.78, "prezzo": 15000, "previsto": 15232, "anni": 6, "km": 162000, "dist": 50, "allest": "S", "carb": "Diesel", "link": "https://www.subito.it/auto/audi-a3-spb-35-tdi-s-tronic-admired-reggio-emilia-649724339.htm"}, {"indice": 0.77, "prezzo": 15000, "previsto": 16299, "anni": 5, "km": 230000, "dist": 156, "allest": "S line", "carb": "Diesel", "link": "https://www.autoscout24.it/annunci/audi-a3-2-0tdi-sline-diesel-cat_ma9mo1624-848c566b-e827-4720-9743-0341b5e72250"}, {"indice": 0.77, "prezzo": 16800, "previsto": 20776, "anni": 6, "km": 76274, "dist": 193, "allest": "S line", "carb": "Ibrido", "link": "https://www.autoscout24.it/annunci/audi-a3-sportback-40-e-tron-s-tr-s-line-c-grimaldi-sp-day-elettrica-benzina-grigio-cat_ma9mo1624-7626bc51-bc2f-4374-bf0a-ed09a9441465"}], "r2_rf": 0.7201423739991974, "rmse_rf": 1994.5027950113051}, {"nome": "BMW_Serie_1", "titolo": "BMW Serie 1", "n": 2004, "prezzo_medio": 29103, "aggiornato": "07/10/2026", "cols": ["Anni", "Chilometraggio", "Cambio", "CV", "is_Diesel vs Benzina", "is_Ibrido vs Benzina", "is_sport vs base", "is_performance vs base", "is_middle vs base", "is NO vs NE", "is Centro vs NE", "is Sud_Isole vs NE"], "coef": [-1819.8567575419677, -58.87922228761914, 379.1421182904808, 71.47430349371126, 3343.151075333196, 9395.285338329733, 3514.1081052993754, 1663.4771633860191, 2248.8474986598017, -999.6961784061405, -193.98123650879882, 636.1651294522112], "intercept": 21125.655927753854, "r2_lin": 0.6935352196727843, "rmse_lin": 3844.437589394156, "allestimenti": {"M": "performance", "M Sport": "sport", "Executive": "middle", "Luxury": "middle", "Sport Line": "middle", "Edition": "base", "Advantage": "base", "Business": "base"}, "carburanti": ["Benzina", "Diesel", "Ibrido"], "top": [{"indice": 0.85, "prezzo": 6800, "previsto": 28232, "anni": 1, "km": 62, "dist": 65, "allest": "M", "carb": "Benzina", "link": "https://www.automobile.it/parma-bmw-116i-5p/180293305"}, {"indice": 0.83, "prezzo": 9300, "previsto": 16291, "anni": 5, "km": 50, "dist": 66, "allest": "M Sport", "carb": "Diesel", "link": "https://www.automobile.it/megliadino-san-vitale-bmw-118-d-150cv-msport-cambio-automatico/179076754"}, {"indice": 0.81, "prezzo": 21990, "previsto": 22234, "anni": 3, "km": 41, "dist": 82, "allest": "M Sport", "carb": "Diesel", "link": "https://www.autoscout24.it/annunci/bmw-118-serie-1-118d-m-sport-m-sport-automatico-diesel-nero-28482cb6-5ade-4583-8117-e4868dc4c4d3"}, {"indice": 0.81, "prezzo": 23900, "previsto": 26759, "anni": 3, "km": 26, "dist": 65, "allest": "M Sport", "carb": "Benzina", "link": "https://www.autoscout24.it/annunci/bmw-116-i-5p-msport-garanzia-casa-madre-benzina-grigio-ae68284c-fa4e-4409-8687-d3992ef63bcd"}, {"indice": 0.81, "prezzo": 23990, "previsto": 29110, "anni": 2, "km": 48, "dist": 65, "allest": "M Sport", "carb": "Diesel", "link": "https://www.autoscout24.it/annunci/bmw-116-116d-msport-auto-permute-iva-esposta-ok-neopat-diesel-bianco-28a37e21-c10a-42b8-813f-2841c1a86ece"}, {"indice": 0.81, "prezzo": 20990, "previsto": 22234, "anni": 3, "km": 41, "dist": 82, "allest": "M Sport", "carb": "Diesel", "link": "https://www.autoscout24.it/annunci/bmw-116-serie-1-116d-m-sport-automatico-diesel-blu-azzurro-700be428-0ee6-479e-bcc5-626f4c3770e6"}, {"indice": 0.81, "prezzo": 27400, "previsto": 28412, "anni": 2, "km": 31, "dist": 16, "allest": "M Sport", "carb": "Benzina", "link": "https://www.autoscout24.it/annunci/bmw-116-i-msport-benzina-bianco-7656087b-bea4-46a9-a51f-9aac70d11c6c"}, {"indice": 0.81, "prezzo": 9400, "previsto": 16348, "anni": 0, "km": 115, "dist": 276, "allest": "M", "carb": "Diesel", "link": "https://www.automobile.it/torino-bmw-116i/180802611"}, {"indice": 0.81, "prezzo": 21900, "previsto": 22253, "anni": 4, "km": 23, "dist": 20, "allest": "M", "carb": "Benzina", "link": "https://www.automobile.it/castelnuovo-rangone-bmw-116-5p/179168891"}, {"indice": 0.81, "prezzo": 22950, "previsto": 23863, "anni": 4, "km": 32, "dist": 14, "allest": "M", "carb": "Benzina", "link": "https://www.automobile.it/pieve-cento-bmw-118-5p/180231785"}, {"indice": 0.81, "prezzo": 29900, "previsto": 31363, "anni": 1, "km": 14, "dist": 59, "allest": "M Sport", "carb": "Diesel", "link": "https://autosupermarket.it/annunci/bmw-serie-1-m-diesel-2024-ce3fa361d3fddc4d?search=https://autosupermarket.it/ricerca/bmw/serie-1/anno-da-2020?t%3D6399rm%26page%3D2"}, {"indice": 0.81, "prezzo": 30900, "previsto": 36664, "anni": 1, "km": 6, "dist": 59, "allest": "M Sport", "carb": "Diesel", "link": "https://autosupermarket.it/annunci/bmw-serie-1-m-diesel-2024-44c28354a8360421?search=https://autosupermarket.it/ricerca/bmw/serie-1/anno-da-2020?t%3D6399rm%26page%3D2"}, {"indice": 0.8, "prezzo": 26500, "previsto": 26652, "anni": 3, "km": 17, "dist": 77, "allest": "M Sport", "carb": "Benzina", "link": "https://www.autoscout24.it/annunci/bmw-118-118i-m-sport-auto-vari-colori-disponibili-benzina-grigio-1705bf53-3a3d-4d0a-bb95-c53dc0ec6103"}, {"indice": 0.8, "prezzo": 26500, "previsto": 26652, "anni": 3, "km": 17, "dist": 77, "allest": "M Sport", "carb": "Benzina", "link": "https://www.autoscout24.it/annunci/bmw-118-i-m-sport-led-navi-vari-colori-disponibili-benzina-bianco-2810879d-5457-4041-9e9d-6fe6d3743d3e"}, {"indice": 0.8, "prezzo": 29890, "previsto": 30946, "anni": 1, "km": 9, "dist": 101, "allest": "M Sport", "carb": "Benzina", "link": "https://www.autoscout24.it/annunci/bmw-118-118-i-5p-msport-m-sport-sconto-immediato-benzina-nero-e1054a9a-c2c7-48ef-9af8-7cc6dfc39472"}, {"indice": 0.8, "prezzo": 29890, "previsto": 30481, "anni": 1, "km": 8, "dist": 101, "allest": "M Sport", "carb": "Benzina", "link": "https://www.autoscout24.it/annunci/bmw-118-118-i-5p-msport-m-sport-sconto-immediato-benzina-grigio-d8388386-2468-4daa-934b-394c5899e011"}, {"indice": 0.8, "prezzo": 22700, "previsto": 27035, "anni": 3, "km": 16, "dist": 140, "allest": "M", "carb": "Benzina", "link": "https://www.autoscout24.it/annunci/bmw-116-i-auto-benzina-17f3b608-cd87-47af-a303-e4e55b7e7735"}, {"indice": 0.8, "prezzo": 26500, "previsto": 27128, "anni": 3, "km": 59, "dist": 23, "allest": "M Sport", "carb": "Diesel", "link": "https://www.autoscout24.it/annunci/bmw-116-116d-5p-msport-diesel-bianco-06c52022-d609-4d77-86e5-31f1a1c295fd"}, {"indice": 0.8, "prezzo": 22700, "previsto": 24064, "anni": 5, "km": 53, "dist": 25, "allest": "M Sport", "carb": "Benzina", "link": "https://www.autoscout24.it/annunci/bmw-118-118i-5p-m-sport-benzina-blu-azzurro-ac579424-e1cc-4a87-93d8-2f96a4cdd2d5"}, {"indice": 0.8, "prezzo": 23000, "previsto": 29581, "anni": 2, "km": 47, "dist": 177, "allest": "M Sport", "carb": "Diesel", "link": "https://www.autoscout24.it/annunci/bmw-116-d-msport-auto-diesel-grigio-0acb9e21-ee98-48a7-b6c4-b0adf93fbbf2"}], "r2_rf": 0.7870787688674387, "rmse_rf": 3204.439035250974}, {"nome": "Mercedes_Classe_A", "titolo": "Mercedes Classe A", "n": 3043, "prezzo_medio": 30405, "aggiornato": "07/10/2026", "cols": ["Anni", "Chilometraggio", "Cambio", "CV", "is_Diesel vs Benzina", "is_Ibrido vs Benzina", "is_sport vs base", "is_performance vs base", "is_middle vs base", "is NO vs NE", "is Centro vs NE", "is Sud_Isole vs NE"], "coef": [-1483.3984081237495, -0.060977993017323595, 634.0632612224002, 66.82766580711342, 1580.4632142933037, -1291.2726624540455, 3597.5498753199317, 4627.809661205338, 381.77260877471485, -268.9606928051597, -250.04366567594897, 931.5102948574453], "intercept": 24370.78421851778, "r2_lin": 0.837398237635001, "rmse_lin": 3174.4099496863173, "allestimenti": {"AMG": "performance", "AMG line": "sport", "Progressive": "middle", "Advanced": "middle", "Elegance": "middle", "Sport": "middle", "Business": "base", "Executive": "base"}, "carburanti": ["Benzina", "Diesel", "Ibrido"], "top": [{"indice": 0.81, "prezzo": 29900, "previsto": 31986, "anni": 1, "km": 15500, "dist": 77, "allest": "AMG line", "carb": "Benzina", "link": "https://www.autoscout24.it/annunci/mercedes-benz-a-180-premium-amg-vari-colori-e-allestimenti-disponibili-benzina-bianco-279e09b8-8955-4575-a8f9-bd819d14d05b"}, {"indice": 0.81, "prezzo": 32800, "previsto": 35832, "anni": 2, "km": 10, "dist": 25, "allest": "AMG line", "carb": "Ibrido", "link": "https://www.autoscout24.it/annunci/mercedes-benz-a-250-e-automatic-plug-in-hybrid-amg-line-advanced-plus-elettrica-benzina-nero-9889633d-aaf0-4de4-acc6-2fd7c823363d"}, {"indice": 0.81, "prezzo": 33900, "previsto": 35832, "anni": 2, "km": 10, "dist": 25, "allest": "AMG line", "carb": "Ibrido", "link": "https://www.autoscout24.it/annunci/mercedes-benz-a-250-e-automatic-plug-in-hybrid-amg-line-advanced-plus-elettrica-benzina-nero-6a74d115-d1fb-4bb6-b198-7dc8971d43a7"}, {"indice": 0.81, "prezzo": 32900, "previsto": 36937, "anni": 2, "km": 5973, "dist": 25, "allest": "AMG line", "carb": "Diesel", "link": "https://www.autoscout24.it/annunci/mercedes-benz-a-180-d-auto-premium-navi-diesel-blu-azzurro-734a2d75-6182-42b1-a29a-3a35b9ab7051"}, {"indice": 0.81, "prezzo": 34900, "previsto": 37583, "anni": 0, "km": 10, "dist": 25, "allest": "AMG line", "carb": "Diesel", "link": "https://www.autoscout24.it/annunci/mercedes-benz-a-180-d-automatic-amg-line-advanced-diesel-argento-61d393ba-aa98-4938-a1b3-13e4c78660f9"}, {"indice": 0.81, "prezzo": 27800, "previsto": 30247, "anni": 1, "km": 38000, "dist": 25, "allest": "AMG line", "carb": "Benzina", "link": "https://www.autoscout24.it/annunci/mercedes-benz-a-200-premium-auto-benzina-f00429ee-393b-4e77-9845-173b96904071"}, {"indice": 0.81, "prezzo": 32800, "previsto": 33735, "anni": 2, "km": 6, "dist": 25, "allest": "AMG line", "carb": "Ibrido", "link": "https://www.automobile.it/bologna-mercedes-benz-250-automatic-plug-hybrid-amg-line-advanced-plus/177028524"}, {"indice": 0.81, "prezzo": 34400, "previsto": 35395, "anni": 0, "km": 6, "dist": 25, "allest": "AMG line", "carb": "Diesel", "link": "https://www.automobile.it/bologna-mercedes-benz-180-d-automatic-amg-line-advanced/179038634"}, {"indice": 0.81, "prezzo": 34400, "previsto": 35395, "anni": 0, "km": 6, "dist": 25, "allest": "AMG line", "carb": "Diesel", "link": "https://www.automobile.it/bologna-mercedes-benz-180-d-automatic-amg-line-advanced-plus/179038632"}, {"indice": 0.81, "prezzo": 34400, "previsto": 35395, "anni": 0, "km": 6, "dist": 25, "allest": "AMG line", "carb": "Diesel", "link": "https://www.automobile.it/bologna-mercedes-benz-180-d-automatic-amg-line-advanced-plus/179241859"}, {"indice": 0.81, "prezzo": 34900, "previsto": 35395, "anni": 0, "km": 6, "dist": 25, "allest": "AMG line", "carb": "Diesel", "link": "https://www.automobile.it/bologna-mercedes-benz-180-d-automatic-amg-line-advanced/179350969"}, {"indice": 0.8, "prezzo": 29900, "previsto": 32674, "anni": 3, "km": 11500, "dist": 97, "allest": "AMG line", "carb": "Diesel", "link": "https://www.autoscout24.it/annunci/mercedes-benz-a-180-d-premium-amg-automatic-diesel-argento-689da2be-3dbc-4d6c-97fe-d58f791d68bd"}, {"indice": 0.8, "prezzo": 30900, "previsto": 31592, "anni": 1, "km": 23824, "dist": 97, "allest": "AMG line", "carb": "Ibrido", "link": "https://www.autoscout24.it/annunci/mercedes-benz-a-180-mhv-premium-amg-automatic-elettrica-benzina-bianco-7715c756-5db5-4ca2-9892-dba4f072beae"}, {"indice": 0.8, "prezzo": 32500, "previsto": 34047, "anni": 1, "km": 15838, "dist": 97, "allest": "AMG line", "carb": "Diesel", "link": "https://www.autoscout24.it/annunci/mercedes-benz-a-180-d-premium-amg-automatic-diesel-nero-f68bf1e5-36cc-4f59-b75b-562a4c305ed3"}, {"indice": 0.8, "prezzo": 31700, "previsto": 36589, "anni": 1, "km": 14728, "dist": 97, "allest": "AMG line", "carb": "Ibrido", "link": "https://www.autoscout24.it/annunci/mercedes-benz-a-180-mhv-premium-amg-automatic-elettrica-benzina-bianco-442dd826-fa42-48c3-b9ad-200dd71da3b7"}, {"indice": 0.8, "prezzo": 31900, "previsto": 32152, "anni": 1, "km": 23818, "dist": 97, "allest": "AMG line", "carb": "Ibrido", "link": "https://www.autoscout24.it/annunci/mercedes-benz-a-180-mhv-premium-amg-automatic-elettrica-benzina-nero-dbba7316-1e41-41e0-bf7b-1b0e32aabb6e"}, {"indice": 0.8, "prezzo": 28800, "previsto": 29801, "anni": 3, "km": 23400, "dist": 77, "allest": "AMG line", "carb": "Benzina", "link": "https://www.autoscout24.it/annunci/mercedes-benz-a-180-amg-premium-led-night-vari-colori-benzina-grigio-c15eb4ba-0790-45d0-be89-a553460f06dd"}, {"indice": 0.8, "prezzo": 30500, "previsto": 31876, "anni": 2, "km": 19000, "dist": 77, "allest": "AMG line", "carb": "Benzina", "link": "https://www.autoscout24.it/annunci/mercedes-benz-a-180-premium-amg-pack-luci-vari-colori-e-allestimenti-benzina-nero-4e25643a-25da-4c84-9090-5da53d619afb"}, {"indice": 0.8, "prezzo": 33500, "previsto": 34100, "anni": 1, "km": 11800, "dist": 77, "allest": "AMG line", "carb": "Benzina", "link": "https://www.autoscout24.it/annunci/mercedes-benz-a-200-premium-amg-restyling-vari-colori-e-allestimenti-benzina-nero-dc078655-2d4f-4097-bc5f-2723ecd95e3f"}, {"indice": 0.8, "prezzo": 29900, "previsto": 32037, "anni": 2, "km": 18300, "dist": 77, "allest": "AMG line", "carb": "Ibrido", "link": "https://www.autoscout24.it/annunci/mercedes-benz-a-250-e-premium-vari-colori-e-allestimenti-full-elettrica-benzina-bianco-627fe55c-5cdd-43bf-9add-f8f64d4de3fc"}], "r2_rf": 0.9169536914568586, "rmse_rf": 2268.6137175632452}, {"nome": "Opel_Corsa", "titolo": "Opel Corsa", "n": 4119, "prezzo_medio": 12772, "aggiornato": "07/10/2026", "cols": ["Anni", "Chilometraggio", "Cambio", "CV", "is_Diesel vs Benzina", "is_GPL vs Benzina", "is_Ibrido vs Benzina", "is_sport vs base", "is_performance vs base", "is_middle vs base", "is NO vs NE", "is Centro vs NE", "is Sud_Isole vs NE"], "coef": [-676.4201297046482, -0.002458938111956503, 1636.4628406418158, 19.588824672238935, 505.1834346724781, 478.90249612975924, 1578.0321823759746, 853.6072908976995, -4.547473508864641e-13, 378.11399806075207, -193.22070771243602, -143.3705906705147, -168.96437255278548], "intercept": 12854.529334315725, "r2_lin": 0.5592214956247874, "rmse_lin": 1758.8019695851901, "allestimenti": {"GS Line": "sport", "GS": "sport", "Elegance": "middle", "Ultimate": "middle", "Desing & Tech": "middle", "Yes Color": "middle", "Edition": "base"}, "carburanti": ["Benzina", "Diesel", "GPL", "Ibrido"], "top": [{"indice": 0.86, "prezzo": 5800, "previsto": 10304, "anni": 1, "km": 1000, "dist": 66, "allest": "GS", "carb": "Benzina", "link": "https://www.subito.it/auto/opel-corsa-1-2-100cv-aut-gs-padova-655135032.htm"}, {"indice": 0.84, "prezzo": 4500, "previsto": 7226, "anni": 4, "km": 408000, "dist": 103, "allest": "GS", "carb": "Benzina", "link": "https://www.autoscout24.it/annunci/opel-corsa-1-2-gs-line-ss-130cv-at8-benzina-cat_ma54mo1918-ef1dedd7-16fd-431c-aa25-4e4a7d545708"}, {"indice": 0.82, "prezzo": 10990, "previsto": 14934, "anni": 1, "km": 280000, "dist": 176, "allest": "GS", "carb": "Benzina", "link": "https://www.autoscout24.it/annunci/opel-corsa-1-2-gs-s-automatica-benzina-bianco-cat_ma54mo1918-fee582c3-c3fb-40dd-a320-4305b42166f3"}, {"indice": 0.81, "prezzo": 11600, "previsto": 12840, "anni": 1, "km": 233370, "dist": 202, "allest": "GS", "carb": "Benzina", "link": "https://www.autoscout24.it/annunci/opel-corsa-1-2-gs-benzina-grigio-cat_ma54mo1918-3eae80f2-28a1-4e70-80e5-e9f92e039f09"}, {"indice": 0.81, "prezzo": 12950, "previsto": 14409, "anni": 1, "km": 153860, "dist": 202, "allest": "GS", "carb": "Benzina", "link": "https://www.autoscout24.it/annunci/opel-corsa-1-2-gs-benzina-bianco-cat_ma54mo1918-e83f3ca6-8340-4213-b591-f3cc19c7fe74"}, {"indice": 0.81, "prezzo": 12750, "previsto": 13892, "anni": 1, "km": 218040, "dist": 202, "allest": "GS", "carb": "Benzina", "link": "https://www.autoscout24.it/annunci/opel-corsa-1-2-gs-benzina-bianco-cat_ma54mo1918-e07aeb88-5ec0-4426-84af-e8869d62e032"}, {"indice": 0.81, "prezzo": 12950, "previsto": 14345, "anni": 1, "km": 150930, "dist": 202, "allest": "GS", "carb": "Benzina", "link": "https://www.autoscout24.it/annunci/opel-corsa-1-2-gs-benzina-rosso-cat_ma54mo1918-a01a36b4-4126-46bb-acf1-efde2175da69"}, {"indice": 0.81, "prezzo": 16900, "previsto": 17296, "anni": 1, "km": 10, "dist": 25, "allest": "GS", "carb": "Benzina", "link": "https://www.autoscout24.it/annunci/opel-corsa-1-2-100-cv-aut-gs-benzina-grigio-cat_ma54mo1918-c0924045-5ad8-4b57-a510-6b81180ce59d"}, {"indice": 0.8, "prezzo": 13900, "previsto": 14423, "anni": 1, "km": 215400, "dist": 194, "allest": "GS", "carb": "Benzina", "link": "https://www.autoscout24.it/annunci/opel-corsa-1-2-gs-benzina-argento-cat_ma54mo1918-f781bab0-42f3-449d-a2e0-3fbcfe5b91d0"}, {"indice": 0.8, "prezzo": 14690, "previsto": 15418, "anni": 1, "km": 184040, "dist": 196, "allest": "GS", "carb": "Benzina", "link": "https://www.autoscout24.it/annunci/opel-corsa-1-2-100cv-at8-gs-benzina-cat_ma54mo1918-c446205d-cf52-4603-94d1-3413051e775a"}, {"indice": 0.8, "prezzo": 14890, "previsto": 15032, "anni": 1, "km": 140750, "dist": 196, "allest": "GS", "carb": "Benzina", "link": "https://www.autoscout24.it/annunci/opel-corsa-1-2-100cv-at8-gs-benzina-cat_ma54mo1918-5361f1f0-9759-430f-84f8-d7e1468e048e"}, {"indice": 0.8, "prezzo": 15900, "previsto": 16057, "anni": 1, "km": 140000, "dist": 86, "allest": "GS", "carb": "Benzina", "link": "https://www.autoscout24.it/annunci/opel-corsa-autom-gs-1-2-100cv-at8-full-led-telecamera-carplay-promo-fin-benzina-argento-cat_ma54mo1918-dc1efdca-b15f-45bf-9a98-398ca93da727"}, {"indice": 0.8, "prezzo": 15250, "previsto": 15968, "anni": 1, "km": 100, "dist": 245, "allest": "GS", "carb": "Benzina", "link": "https://www.autoscout24.it/annunci/opel-corsa-1-2-gs-ss-100cv-at8-benzina-argento-cat_ma54mo1918-5976d730-0a69-4da6-852b-56c4eecaf3f5"}, {"indice": 0.8, "prezzo": 15500, "previsto": 15968, "anni": 1, "km": 100, "dist": 245, "allest": "GS", "carb": "Benzina", "link": "https://www.autoscout24.it/annunci/opel-corsa-1-2-gs-ss-100cv-at8-benzina-nero-cat_ma54mo1918-61336cbe-64dd-4c3d-8672-df38ace9c435"}, {"indice": 0.8, "prezzo": 16990, "previsto": 17826, "anni": 1, "km": 200, "dist": 141, "allest": "GS", "carb": "Benzina", "link": "https://www.autoscout24.it/annunci/opel-corsa-1-2-100cv-gs-rossa-tetto-nero-benzina-rosso-cat_ma54mo1918-b4fe9b58-2da4-4dd8-a091-318f96f263a4"}, {"indice": 0.8, "prezzo": 11600, "previsto": 11956, "anni": 1, "km": 23337, "dist": 202, "allest": "GS", "carb": "Benzina", "link": "https://www.automobile.it/legnano-opel-corsa-2023-corsa-1-2-gs-s-s-100cv-at8/184535199"}, {"indice": 0.8, "prezzo": 11600, "previsto": 11956, "anni": 1, "km": 23337, "dist": 202, "allest": "GS", "carb": "Benzina", "link": "https://www.automobile.it/legnano-opel-corsa-2023-corsa-1-2-gs-s-s-100cv-at8/184535210"}, {"indice": 0.8, "prezzo": 11999, "previsto": 12299, "anni": 5, "km": 93293, "dist": 177, "allest": "GS", "carb": "Benzina", "link": "https://www.automobile.it/milano-opel-corsa-1-2-130-cv-aut-gs-line/184218023"}, {"indice": 0.8, "prezzo": 15900, "previsto": 16028, "anni": 1, "km": 14000, "dist": 86, "allest": "GS", "carb": "Benzina", "link": "https://www.automobile.it/verona-opel-corsa-autom-gs-1-2-100cv-at8-full-led-telecamera-carplay-promo-fin/183813036"}, {"indice": 0.8, "prezzo": 16900, "previsto": 17319, "anni": 1, "km": 6, "dist": 25, "allest": "GS", "carb": "Benzina", "link": "https://www.automobile.it/bologna-opel-corsa-1-2-100-cv-aut-gs/181637754"}], "r2_rf": 0.6986550681590694, "rmse_rf": 1454.2487047783422}]</script>
+<script>
+(() => {
+  const D = Object.fromEntries(JSON.parse(document.getElementById("dati").textContent).map(m => [m.nome, m]));
+  const $$ = id => document.getElementById(id);
+  const AREE = {"Nord-est": null, "Nord-ovest": "is NO vs NE", "Centro": "is Centro vs NE", "Sud": "is Sud_Isole vs NE", "Isole": "is Sud_Isole vs NE"};
+  const eur = n => Math.round(n).toLocaleString("it-IT") + " €";
+  const riempi = (sel, valori) => sel.replaceChildren(...valori.map(v => Object.assign(document.createElement("option"), {textContent: v})));
+
+  function cambiaModello() {
+    const m = D[$$("f-modello").value];
+    riempi($$("f-allest"), Object.keys(m.allestimenti));
+    riempi($$("f-carb"), m.carburanti);
+    $$("esito").hidden = true;
+  }
+  $$("f-modello").addEventListener("change", cambiaModello);
+  cambiaModello();
+
+  $$("calcola").addEventListener("click", () => {
+    const m = D[$$("f-modello").value], v = id => $$(id).value;
+    const f = {Anni: +v("f-anni"), Chilometraggio: +v("f-km"), CV: +v("f-cv"), Cambio: +v("f-cambio"),
+      [`is_${v("f-carb")} vs Benzina`]: 1, [`is_${m.allestimenti[v("f-allest")]} vs base`]: 1, [AREE[v("f-area")]]: 1};
+    const previsto = m.cols.reduce((s, c, i) => s + m.coef[i] * (f[c] || 0), m.intercept);
+    const prezzo = +v("f-prezzo"), delta = previsto - prezzo;
+    const [classe, testo] = delta > m.rmse_lin ? ["buono", "Sotto prezzata: buon affare"]
+      : delta < -m.rmse_lin ? ["cattivo", "Sovra prezzata"] : ["", "Prezzo in linea con il mercato"];
+    const box = $$("esito");
+    box.className = "esito " + classe;
+    const s = Object.assign(document.createElement("strong"), {className: "verdetto", textContent: testo});
+    const r = Object.assign(document.createElement("div"), {
+      textContent: `Prezzo richiesto ${eur(prezzo)} · prezzo stimato ${eur(previsto)} · differenza ${delta >= 0 ? "+" : ""}${eur(delta)}`});
+    const e = Object.assign(document.createElement("small"), {
+      textContent: `Errore tipico del modello: ±${eur(m.rmse_lin)} (regressione lineare, R² ${m.r2_lin.toFixed(2)}).`});
+    box.replaceChildren(s, r, e);
+    box.hidden = false;
+  });
+
+  function tabella() {
+    const m = D[$$("o-modello").value], corpo = $$("top-corpo");
+    corpo.replaceChildren();
+    if (!m.top.length) {
+      const td = Object.assign(document.createElement("td"), {colSpan: 10, textContent: "Nessuna offerta (modello non ancora addestrato?)"});
+      corpo.append(document.createElement("tr")); corpo.lastChild.append(td);
+      return;
+    }
+    for (const o of m.top) {
+      const tr = document.createElement("tr");
+      const celle = [o.indice.toFixed(2), eur(o.prezzo), eur(o.previsto), "+" + eur(o.previsto - o.prezzo), o.anni, o.km.toLocaleString("it-IT"), o.dist, o.allest, o.carb];
+      celle.forEach((t, i) => {
+        const td = Object.assign(document.createElement("td"), {textContent: t});
+        if (i < 7) td.className = "num" + (i === 3 ? " pos" : "");
+        tr.append(td);
+      });
+      const a = Object.assign(document.createElement("a"), {href: o.link, target: "_blank", rel: "noopener", textContent: "Apri"});
+      const td = document.createElement("td"); td.append(a); tr.append(td);
+      corpo.append(tr);
+    }
+  }
+  $$("o-modello").addEventListener("change", tabella);
+  tabella();
+})();
+</script>
+
+<footer><p>Dati aggiornati al 07/10/2026 · Autoscout24, Automobile.it, Autosupermarket, Subito</p><p><a class="firma" href="https://progetti.federicogamberini.it/"><svg viewBox="0 0 341.61 344.35" width="28" height="28" aria-hidden="true"><path fill="var(--c2)" d="M305.77,314.84c-1.08-1.67-1.77-2.62-2.34-3.65c-3.02-5.39-5.94-10.83-9.02-16.18c-17.29-30.05-43.07-48.09-77.1-54.5 c-17.79-3.35-35.74-5.17-53.8-6.14c-21.84-1.18-43.73-1.99-65.32-6c-9.5-1.76-18.94-3.73-27.98-7.29 c-8.04-3.16-15.26-7.61-21.27-13.87c-13.08-13.63-15.82-29.73-10.89-47.44c2.89-10.41,8.84-18.71,17.92-24.85 c10.62-7.18,21.95-12.65,34.39-15.81c2.06-0.52,4.09-1.18,6.13-1.81c0.3-0.09,0.56-0.34,1.29-0.81 c-9.36-6.59-18.86-12.66-27.69-21.06c10.9-3.7,21.14-6.76,31.45-9.97c0.99,1.14,1.81,2.04,2.59,2.97 c13.91,16.46,31.6,23.71,53.08,22.12c16.35-1.21,30.14-7.47,40.84-20.05c6.12-7.19,10.46-15.41,13.36-24.36 c1.45-4.47,2.43-9.1,3.59-13.66c0.36-1.4,0.63-2.83,1-4.55c18.56-6.79,37.16-13.59,56.5-20.67c-0.23,2.67-0.22,4.76-0.61,6.76 c-8.53,44.01-33.56,73.26-77.08,85.81c-16.26,4.69-32.94,6.71-49.81,7.55c-15.23,0.76-30.52,1.1-45.49,4.59 c-7.02,1.64-13.98,3.55-20.22,7.22c-3.33,1.96-6.64,4.34-9.17,7.23c-7.64,8.72-5.53,19.97,4.64,25.58 c6.25,3.45,13.13,5.38,20.15,6.33c10.45,1.41,20.95,2.44,31.45,3.35c14.2,1.23,28.42,2.13,42.62,3.29 c13.31,1.09,26.63,2.08,39.89,3.6c15.86,1.82,31.55,4.74,46.46,10.71c32.06,12.85,49.3,37.31,54.57,70.78 c2.14,13.57,1.06,27.09-2.51,40.38C307.06,311.7,306.51,312.88,305.77,314.84z"/></svg><span>Federico Gamberini</span></a></p></footer>
+</main>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+const barra = $("barra"), copertina = $("copertina");
+const riduciMovimento = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const capitoli = [...document.querySelectorAll(".capitolo")], voci = [...document.querySelectorAll(".indice a")];
+let inCoda = false;
+function aggiornaBarra() {
+  inCoda = false;
+  const y = scrollY, hc = copertina.offsetHeight, hb = barra.offsetHeight, soglia = hb + 40;
+  if (!riduciMovimento) copertina.style.setProperty("--p", Math.min(1, y / hc).toFixed(3));
+  barra.classList.toggle("compatta", y > hc - hb * 2);
+  const max = document.documentElement.scrollHeight - innerHeight;
+  let cap = null;
+  for (const c of capitoli) if (c.getBoundingClientRect().top <= soglia) cap = c;
+  if (y >= max - 2) cap = capitoli.at(-1);  // in fondo l'ultimo capitolo non arriva in cima
+  voci.forEach(a => a.classList.toggle("attivo", !!cap && a.getAttribute("href") === "#" + cap.id));
+  $("barra-capitolo").textContent = cap ? cap.dataset.titolo : "";
+  barra.dataset.parte = cap ? cap.dataset.parte : "";
+  barra.style.setProperty("--avanzamento", max > 0 ? Math.min(1, y / max).toFixed(4) : 0);
+}
+addEventListener("scroll", () => { if (!inCoda) { inCoda = true; requestAnimationFrame(aggiornaBarra); } }, {passive: true});
+addEventListener("resize", aggiornaBarra);
+aggiornaBarra();
+
+const indice = $("indice"), apriIndice = $("apri-indice");
+const mostraIndice = aperto => { indice.classList.toggle("aperto", aperto); apriIndice.setAttribute("aria-expanded", aperto); };
+apriIndice.addEventListener("click", () => mostraIndice(!indice.classList.contains("aperto")));
+indice.addEventListener("click", e => { if (e.target.closest("a")) mostraIndice(false); });
+addEventListener("keydown", e => { if (e.key === "Escape") mostraIndice(false); });
+
+$("tema").addEventListener("click", () => {
+  const r = document.documentElement, scuro = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  r.dataset.theme = scuro ? "light" : "dark";
+  try { localStorage.theme = r.dataset.theme } catch {}
+});
+</script>
+
+</html>

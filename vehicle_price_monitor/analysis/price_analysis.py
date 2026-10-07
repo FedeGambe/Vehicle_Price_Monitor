@@ -146,26 +146,3 @@ def indice_appetibilita (data, y_pred, prezzo_soglia, valore_idx_anni, valore_id
     data['delta_prezzo'] = round(data['prezzo_previsto'] - data['Prezzo'],2)
     data['is_conveniente'] = (data['delta_prezzo'] > 100).astype(int)
     return data
-    
-from IPython.display import display, HTML
-def display_top_auto(df,n_display, prezzo_max, prezzo_min, km_max, km_min, dist_max, carburante=None):
-    # Filtro sia per prezzo che per km e distanza
-    filtro = (
-        (df['Prezzo'] <= prezzo_max) & (df['Prezzo'] > prezzo_min) &
-        (df['Chilometraggio'] <= km_max) & (df['Chilometraggio'] > km_min) &
-        (df['Distanza'] <= dist_max)
-    )
-    
-    # Se è specificato il carburante, aggiungo anche questo filtro
-    if carburante is not None:
-        filtro = filtro & (df['Carburante'] == carburante)
-    
-    filtered_df = df[filtro]
-    top_X = filtered_df.nlargest(n_display, 'Indice_Appetibilità')
-
-    print(f"Le migliori {n_display} auto secondo l'indice di appetibilità sono:")
-    for _, row in top_X.iterrows():
-        link = row['Link']
-        display(HTML(f"Indice {row['Indice_Appetibilità']:.2f} → <a href='{link}' target='_blank'>{link}</a>"))
-    print()
-    display(top_X)

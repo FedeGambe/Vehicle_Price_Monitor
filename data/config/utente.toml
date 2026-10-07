@@ -1,0 +1,17 @@
+# Preferenze personali (valgono per tutti i modelli)
+
+# Comune di residenza: serve a calcolare la distanza dell'annuncio
+comune = "Sant'Agata Bolognese"
+
+# Oltre questo prezzo il punteggio del prezzo viene penalizzato in modo esponenziale
+prezzo_soglia = 35000
+
+# Indice di appetibilità: peso di ogni caratteristica (la somma non deve per forza fare 1)
+[pesi]
+anni = 0.025
+prezzo = 0.15
+km = 0.15
+distanza = 0.10
+allestimento = 0.25
+cv = 0.025
+cambio = 0.20

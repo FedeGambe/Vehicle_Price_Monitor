@@ -1,0 +1,66 @@
+# Configurazione Opel Corsa
+marca = "Opel"
+modello = "Corsa"
+
+# Percorso del modello su ogni sito, nel formato "marca/modello" (come compare nell'URL del sito)
+[siti]
+"autoscout" = "opel/corsa"
+"automobile_it" = "opel/corsa"
+"subito_it" = "opel/corsa"
+"autosupermarket" = "opel/corsa"
+
+# Filtri di ricerca di default (sovrascrivibili da riga di comando). 0 = nessun limite
+[ricerca]
+prezzo_min = 3000
+prezzo_max = 30000
+km_min = 0
+km_max = 0
+anno_min = 2020
+anno_max = 2025
+
+# Classificazione degli allestimenti per segmento
+[allestimenti]
+performance = []
+sport = ["GS Line", "GS"]
+middle = ["Elegance", "Ultimate", "Desing & Tech", "Yes Color"]
+base = ["Edition"]
+
+# Nomi trovati negli annunci -> nome standard dell'allestimento
+[mappa_allestimenti]
+"GS-Line" = "GS Line"
+"GSLine" = "GS Line"
+"gs" = "GS"
+"elegance" = "Elegance"
+"ultimate" = "Ultimate"
+"edition" = "Edition"
+"design & tech" = "Desing & Tech"
+"design&tech" = "Desing & Tech"
+"d & th" = "Desing & Tech"
+"d&" = "Desing & Tech"
+"40 anniversario" = "40 Anniversario"
+"40anniversario" = "40 Anniversario"
+"40 anni" = "40 Anniversario"
+"40anni" = "40 Anniversario"
+"40 years" = "40 Anniversario"
+"40years" = "40 Anniversario"
+"Yes Color Edition" = "Yes Color"
+"Yes color" = "Yes Color"
+"yescolor" = "Yes Color"
+"yes-color" = "Yes Color"
+
+# Sigla motorizzazione negli annunci -> nome standard
+[motorizzazioni]
+"1.2 75" = "1.2 75cv"
+"1.2 100" = "1.2 100cv"
+"1.2 130" = "1.2 130cv"
+"1.2" = "1.2 75cv"
+"1.5" = "1.5 Diesel"
+"1.5 100" = "1.5 Diesel"
+"1.5 d" = "1.5 Diesel"
+
+# Cavalli per ogni motorizzazione (nome standard)
+[mappa_cv]
+"1.2 75cv" = 75
+"1.2 100cv" = 100
+"1.2 130cv" = 130
+"1.5 Diesel" = 100
