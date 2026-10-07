@@ -11,7 +11,7 @@ PROCESSED = DATA / "processed"
 MODELS = DATA / "models"
 CONFIG = DATA / "config"
 GEO = CONFIG / "geo"
-APP = ROOT / "app"
+DOCS = ROOT / "docs"  # cartella servita da GitHub Pages
 
 
 def modelli():

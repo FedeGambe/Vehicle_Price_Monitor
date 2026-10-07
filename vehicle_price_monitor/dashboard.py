@@ -1,4 +1,4 @@
-"""Genera app/dashboard.html: pagina unica e autonoma (dati incorporati, nessun server, nessun modello ML da caricare)."""
+"""Genera docs/index.html: pagina unica e autonoma (dati incorporati, nessun server, nessun modello ML da caricare)."""
 import html
 import json
 from datetime import datetime
@@ -10,7 +10,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 
-from .paths import APP, MODELS, PROCESSED, load_config, modelli
+from .paths import DOCS, MODELS, PROCESSED, load_config, modelli
 
 ESCLUSE = ["Prezzo", "Distanza", "Venditore"]  # colonne escluse da X, come in train()
 FAVICON = "data:image/svg+xml," + quote(
@@ -166,18 +166,18 @@ _JS = r'''
 '''
 
 
-def build(nomi=None, out=APP / "dashboard.html"):
+def build(nomi=None, out=DOCS / "index.html"):
     nomi = nomi or [n for n in modelli() if (PROCESSED / n / f"data_dummy_{n}.csv").exists()]
     if not nomi:
         raise SystemExit("Nessun modello con dati processati: esegui prima 'run <modello>'")
     ms = [_dati_modello(n) for n in nomi]
-    cover = (APP / "copertina.svg").read_text(encoding="utf8").replace(
+    cover = (DOCS / "copertina.svg").read_text(encoding="utf8").replace(
         "<svg ", '<svg class="bauhaus" preserveAspectRatio="xMidYMax slice" aria-hidden="true" ', 1)
     voci = [("c0", "Sintesi", "gruppo-grigio", ""), ("c1", "1. Calcola", "", ""), ("c2", "2. Migliori offerte", "", "link-b"),
             ("c3", "3. Come funziona", "gruppo-grigio", ""), ("c4", "4. Aggiornare i dati", "gruppo-grigio", "")]
     indice = "".join(f'<li class="{li}"><a class="{a}" href="#{i}">{t}</a></li>' for i, t, li, a in voci)
     tag = "".join(f"<span>{t}</span>" for t in ("Web scraping", "Machine Learning", "Prezzi auto usate"))
-    pagina = (APP / "template.html").read_text(encoding="utf8")
+    pagina = (DOCS / "template.html").read_text(encoding="utf8")
     for k, v in {
         "LINGUA": "it", "TITOLO": "Vehicle Price Monitor", "TITOLO_HTML": "Vehicle <em>Price</em> Monitor",
         "DESCRIZIONE": "Quanto vale davvero un'auto usata? Confronto dei prezzi e stima sovra/sotto prezzo.",

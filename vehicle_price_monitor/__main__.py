@@ -40,7 +40,7 @@ def main():
     p.add_argument("--km-max", type=int, default=10**9)
     p.add_argument("--dist-max", type=int, default=10**9, help="distanza massima in km")
     p.add_argument("--carburante")
-    p = sub.add_parser("dashboard", help="genera app/dashboard.html (pagina unica, si apre con doppio clic)")
+    p = sub.add_parser("dashboard", help="genera docs/index.html (pagina unica, si apre con doppio clic)")
     p.add_argument("modello", nargs="*", metavar="MODELLO", help="default: tutti quelli con dati")
     p = sub.add_parser("run", parents=[filtri], help="scrape + prepare + train + dashboard")
     p.add_argument("modello", **m)
