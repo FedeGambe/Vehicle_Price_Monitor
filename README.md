@@ -12,7 +12,6 @@ L'obiettivo è supportare gli utenti nella valutazione delle offerte disponibili
   - [x] automobile.it
   - [x] subito.it
   - [x] autosupermarket.it
-  - [ ] autotorino.it *(in fase di sviluppo)*
 - **Pulizia e preparazione dati** multi-sorgente
 - **Analisi geografica e di convenienza**:
   - Calcolo della **distanza chilometrica** tra l'annuncio e il luogo di residenza dell'utente
