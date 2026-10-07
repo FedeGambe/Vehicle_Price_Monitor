@@ -1,5 +1,6 @@
 """Uso: python -m vehicle_price_monitor <comando> [modello] [opzioni]   (python -m vehicle_price_monitor -h)"""
 import argparse
+import sys
 
 from . import pipeline
 from .paths import modelli
@@ -11,6 +12,7 @@ def _elenco(valori):
 
 
 def main():
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # emoji nei messaggi: la console/redirect di Windows è cp1252
     ap = argparse.ArgumentParser(prog="vehicle_price_monitor", description=__doc__)
     sub = ap.add_subparsers(dest="cmd", required=True)
     m = dict(nargs="+", metavar="MODELLO", help="es. Opel_Corsa (più modelli, oppure 'tutti')")
