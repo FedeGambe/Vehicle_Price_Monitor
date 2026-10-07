@@ -75,9 +75,10 @@ Vehicle_Price_Monitor/
 │   └── analysis/                 # price_analysis (OLS, RF, appetibilità), plots
 ├── docs/
 │   ├── index.html                # La dashboard (generata, servita da GitHub Pages)
-│   ├── copertina.svg             # Copertina orizzontale (1600x900)
-│   ├── copertina-verticale.svg   # Copertina verticale (1080x1350)
-│   └── favicon.svg               # Favicon (incorporata anche in index.html)
+│   ├── img/copertina.svg         # Copertina orizzontale (1600x900)
+│   ├── img/cover_verticale.svg          # Copertina verticale (1080x1350)
+│   ├── progetto.json             # Scheda per il sito vetrina
+│   └── img/favicon.svg           # Favicon (incorporata anche in index.html)
 ├── data/
 │   ├── config/                   # <Modello>.toml, utente.toml, geo/
 │   ├── raw/<Modello>/            # output grezzo dello scraping

@@ -14,7 +14,7 @@ from .paths import DOCS, MODELS, PROCESSED, load_config, modelli
 
 WEB = __import__("pathlib").Path(__file__).parent / "web"  # template.html e logica.js
 ESCLUSE = ["Prezzo", "Distanza", "Venditore"]  # colonne escluse da X, come in train()
-FAVICON = "data:image/svg+xml," + quote((DOCS / "favicon.svg").read_text(encoding="utf8"))  # incorporata: la pagina resta un file solo
+FAVICON = "data:image/svg+xml," + quote((DOCS / "img" / "favicon.svg").read_text(encoding="utf8"))  # incorporata: la pagina resta un file solo
 
 
 def _dati_modello(nome):
