@@ -14,9 +14,7 @@ from .paths import DOCS, MODELS, PROCESSED, load_config, modelli
 
 WEB = __import__("pathlib").Path(__file__).parent / "web"  # template.html e logica.js
 ESCLUSE = ["Prezzo", "Distanza", "Venditore"]  # colonne escluse da X, come in train()
-FAVICON = "data:image/svg+xml," + quote(
-    "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='#101a33'/>"
-    "<text x='16' y='23' font-size='20' font-weight='900' text-anchor='middle' fill='#e0a82e' font-family='Georgia,serif'>€</text></svg>")
+FAVICON = "data:image/svg+xml," + quote((DOCS / "favicon.svg").read_text(encoding="utf8"))  # incorporata: la pagina resta un file solo
 
 
 def _dati_modello(nome):
