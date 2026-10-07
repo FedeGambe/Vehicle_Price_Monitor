@@ -30,7 +30,12 @@ motorizzazioni = {
     "m135i": "M135i xDrive", "116d": "116d", "118d": "118d", "120d": "120d",
     "120dx": "120d xDrive", "m135ix": "M135i xDrive"
 }
-modelli_ord = sorted(motorizzazioni.keys(), key=len, reverse=True)
+import re
+
+def normalizza(s):
+    return re.sub(r"[^\w]", "", s.lower())
+motorizzazioni_norm = {normalizza(k): v for k, v in motorizzazioni.items()}
+modelli_ord = sorted(motorizzazioni_norm.keys(), key=len, reverse=True)
 
 mappa_cv = {
     "116i": 109, "118i": 136, "120i": 178, "128ti": 265,

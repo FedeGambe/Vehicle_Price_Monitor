@@ -42,7 +42,12 @@ motorizzazioni = {
 }
 
 # Ordine per ricerca ottimale (più lungo prima)
-modelli_ord = sorted(motorizzazioni.keys(), key=len, reverse=True)
+import re
+
+def normalizza(s):
+    return re.sub(r"[^\w]", "", s.lower())
+motorizzazioni_norm = {normalizza(k): v for k, v in motorizzazioni.items()}
+modelli_ord = sorted(motorizzazioni_norm.keys(), key=len, reverse=True)
 
 # Mappatura cavalli per ogni motorizzazione
 mappa_cv = {

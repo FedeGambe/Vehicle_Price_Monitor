@@ -29,7 +29,12 @@ motorizzazioni = {
     "a35": "A 35", "a45": "A 45", "a45s": "A 45 S", "a160d": "A 160 d", "a180d": "A 180 d",
     "a200d": "A 200 d", "a220d": "A 220 d", "a250e": "A 250 e"
 }
-modelli_ord = sorted(motorizzazioni.keys(), key=len, reverse=True)
+import re
+
+def normalizza(s):
+    return re.sub(r"[^\w]", "", s.lower())
+motorizzazioni_norm = {normalizza(k): v for k, v in motorizzazioni.items()}
+modelli_ord = sorted(motorizzazioni_norm.keys(), key=len, reverse=True)
 
 mappa_cv = {
     "A 160": 109, "A 180": 136, "A 200": 163, "A 220": 190, "A 250": 224,

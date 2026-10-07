@@ -11,7 +11,7 @@ def build_autosupermarket_url(marca, modello, prezzo_minimo=0, prezzo_massimo=0,
     params = []
 
     if prezzo_minimo > 0:
-        params.append(f"prezzo-da-{prezzo_minimo}")
+        params.append(f"prezzo-da={prezzo_minimo}")
     if prezzo_massimo > 0:
         params.append(f"prezzo-a={prezzo_massimo}")
     if km_minimi > 0:

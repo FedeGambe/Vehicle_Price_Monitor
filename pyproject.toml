@@ -8,4 +8,4 @@ dynamic = ["dependencies"]
 dependencies = { file = ["requirements.txt"] }
 
 [tool.setuptools.packages.find]
-include = ["vehicle_price_monitor*"]
+include = ["vehicle_price_monitor*", "app*"]

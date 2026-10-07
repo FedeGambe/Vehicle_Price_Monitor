@@ -7,12 +7,12 @@ DATA = ROOT / "data"
 RAW = DATA / "raw"
 PROCESSED = DATA / "processed"
 MODELS = DATA / "models"
-GEO = PROCESSED / "geo"
+GEO = Path(__file__).parent / "config" / "geo"
 
 
 def load_config(modello):
-    """Carica vehicle_price_monitor/models_config/config_<modello>.py"""
+    """Carica vehicle_price_monitor.config.config_<modello>.py"""
     try:
-        return importlib.import_module(f"vehicle_price_monitor.models_config.config_{modello}")
+        return importlib.import_module(f"vehicle_price_monitor.config.config_{modello}")
     except ModuleNotFoundError as e:
-        raise FileNotFoundError(f"Config per '{modello}' non trovata in models_config/") from e
+        raise FileNotFoundError(f"Config per '{modello}' non trovata in vehicle_price_monitor/config/") from e

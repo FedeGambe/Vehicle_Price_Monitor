@@ -109,7 +109,7 @@ def clean_data_ASM(data_ASM,motorizzazioni, modelli_ord):
     if 'Località2' in data_ASM.columns:
         data_ASM['Località'] = data_ASM['Località2'].combine_first(data_ASM['Località'])
         data_ASM = data_ASM.drop(columns=['Località2'])
-    data_ASM[['CAP', 'Comune', 'Provincia']] = data_ASM['Località'].str.extract(r'(\d{5})\s+(.+?)\s+\((\w{2})\)')
+    data_ASM[['CAP', 'Comune', 'Provincia']] = data_ASM['Località'].str.extract(r'(?:(\d{5})\s+)?(.+?)\s+\((\w{2})\)')  # CAP opzionale: il sito non lo mostra più
     data_ASM['Comune'] = data_ASM['Comune'].apply(normalizza_testo)
     data_ASM = data_ASM.drop(columns=['Località', 'Provincia'])
     return data_ASM
@@ -139,6 +139,9 @@ only_comune_per_cap = pd.read_csv(GEO / 'only_comune_per_cap.csv')
 def data_formatting (data, only_cap_per_comune, distanza, comune_per_analisi, mappa_allestimenti, allestimento_performance, allestimento_sport, allestimento_middle, allestimento_base):
     data = data.merge(only_cap_per_comune[['Regione', 'Comune']], on='Comune', how='left')
     data = data.merge(only_cap_per_comune[['Area', 'Comune']], on='Comune', how='left')
+    if 'CAP' in data.columns:  # fonti senza CAP: lo ricavo dal comune
+        cap_comune = only_cap_per_comune.drop_duplicates('Comune').set_index('Comune')['CAP']
+        data['CAP'] = pd.to_numeric(data['CAP'], errors='coerce').fillna(data['Comune'].map(cap_comune))
     val_doppi = data['Link'].duplicated()
     print(f"\nCi sono dei valori doppi? {val_doppi.any()}")
     if val_doppi.any() == True:

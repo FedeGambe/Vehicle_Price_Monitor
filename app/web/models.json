@@ -1,0 +1,204 @@
+{
+ "Audi_A3": {
+  "cols": [
+   "Anni",
+   "Chilometraggio",
+   "Cambio",
+   "CV",
+   "is_Diesel vs Benzina",
+   "is_Ibrido vs Benzina",
+   "is_Metano vs Benzina",
+   "is_Elettrico vs Benzina",
+   "is_sport vs base",
+   "is_performance vs base",
+   "is_middle vs base",
+   "is NO vs NE",
+   "is Centro vs NE",
+   "is Sud_Isole vs NE"
+  ],
+  "coef": [
+   -929.8750030942352,
+   -0.03172059081170201,
+   1236.2422181324882,
+   17.718509819886673,
+   154.06253506146223,
+   -89.64616006317056,
+   -145.67201759243582,
+   -428.6089419525429,
+   2708.72444285789,
+   392.62917892439003,
+   870.0958720526121,
+   -167.41387804702697,
+   162.77594912699186,
+   395.0429393875362
+  ],
+  "intercept": 25257.088295683763,
+  "r2": 0.5914767907451695,
+  "rmse": 2409.7636214942027,
+  "allestimenti": {
+   "S": "performance",
+   "RS": "performance",
+   "S line": "sport",
+   "Advanced": "middle",
+   "Business Advanced": "middle",
+   "Identity": "middle",
+   "Sport": "middle",
+   "Design": "middle",
+   "Business": "base",
+   "Business Plus": "base"
+  },
+  "carburanti": [
+   "Diesel",
+   "Ibrido",
+   "Metano",
+   "Benzina",
+   "Elettrico"
+  ]
+ },
+ "BMW_Serie_1": {
+  "cols": [
+   "Anni",
+   "Chilometraggio",
+   "Cambio",
+   "CV",
+   "is_Diesel vs Benzina",
+   "is_Ibrido vs Benzina",
+   "is_sport vs base",
+   "is_performance vs base",
+   "is_middle vs base",
+   "is NO vs NE",
+   "is Centro vs NE",
+   "is Sud_Isole vs NE"
+  ],
+  "coef": [
+   -1819.8567575419677,
+   -58.87922228761914,
+   379.1421182904808,
+   71.47430349371126,
+   3343.151075333196,
+   9395.285338329733,
+   3514.1081052993754,
+   1663.4771633860191,
+   2248.8474986598017,
+   -999.6961784061405,
+   -193.98123650879882,
+   636.1651294522112
+  ],
+  "intercept": 21125.655927753854,
+  "r2": 0.6935352196727843,
+  "rmse": 3844.437589394156,
+  "allestimenti": {
+   "M": "performance",
+   "M Sport": "sport",
+   "Executive": "middle",
+   "Luxury": "middle",
+   "Sport Line": "middle",
+   "Edition": "base",
+   "Advantage": "base",
+   "Business": "base"
+  },
+  "carburanti": [
+   "Benzina",
+   "Diesel",
+   "Ibrido"
+  ]
+ },
+ "Mercedes_Classe_A": {
+  "cols": [
+   "Anni",
+   "Chilometraggio",
+   "Cambio",
+   "CV",
+   "is_Diesel vs Benzina",
+   "is_Ibrido vs Benzina",
+   "is_sport vs base",
+   "is_performance vs base",
+   "is_middle vs base",
+   "is NO vs NE",
+   "is Centro vs NE",
+   "is Sud_Isole vs NE"
+  ],
+  "coef": [
+   -1483.3984081237495,
+   -0.060977993017323595,
+   634.0632612224002,
+   66.82766580711342,
+   1580.4632142933037,
+   -1291.2726624540455,
+   3597.5498753199317,
+   4627.809661205338,
+   381.77260877471485,
+   -268.9606928051597,
+   -250.04366567594897,
+   931.5102948574453
+  ],
+  "intercept": 24370.78421851778,
+  "r2": 0.837398237635001,
+  "rmse": 3174.4099496863173,
+  "allestimenti": {
+   "AMG": "performance",
+   "AMG line": "sport",
+   "Progressive": "middle",
+   "Advanced": "middle",
+   "Elegance": "middle",
+   "Sport": "middle",
+   "Business": "base",
+   "Executive": "base"
+  },
+  "carburanti": [
+   "Diesel",
+   "Ibrido",
+   "Benzina"
+  ]
+ },
+ "Opel_Corsa": {
+  "cols": [
+   "Anni",
+   "Chilometraggio",
+   "Cambio",
+   "CV",
+   "is_Diesel vs Benzina",
+   "is_GPL vs Benzina",
+   "is_Ibrido vs Benzina",
+   "is_sport vs base",
+   "is_performance vs base",
+   "is_middle vs base",
+   "is NO vs NE",
+   "is Centro vs NE",
+   "is Sud_Isole vs NE"
+  ],
+  "coef": [
+   -676.4201297046482,
+   -0.002458938111956503,
+   1636.4628406418158,
+   19.588824672238935,
+   505.1834346724781,
+   478.90249612975924,
+   1578.0321823759746,
+   853.6072908976995,
+   -4.547473508864641e-13,
+   378.11399806075207,
+   -193.22070771243602,
+   -143.3705906705147,
+   -168.96437255278548
+  ],
+  "intercept": 12854.529334315725,
+  "r2": 0.5592214956247874,
+  "rmse": 1758.8019695851901,
+  "allestimenti": {
+   "GS Line": "sport",
+   "GS": "sport",
+   "Elegance": "middle",
+   "Ultimate": "middle",
+   "Desing & Tech": "middle",
+   "Yes Color": "middle",
+   "Edition": "base"
+  },
+  "carburanti": [
+   "Benzina",
+   "Diesel",
+   "GPL",
+   "Ibrido"
+  ]
+ }
+}
