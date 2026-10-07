@@ -3,7 +3,7 @@
     "t": "Vehicle Price Monitor",
     "d": "Monitoraggio dei prezzi delle auto usate: web scraping e analisi per trovare le offerte migliori per prezzo, chilometraggio e distanza.",
     "tags": ["Scraping", "Analisi"],
-    "y": 2026,
+    "y": 2025,
     "live": "/Vehicle_Price_Monitor/",
     "img": "img/cover_verticale.svg"
 }
