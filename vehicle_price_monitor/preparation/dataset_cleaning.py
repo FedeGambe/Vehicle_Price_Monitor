@@ -1,6 +1,6 @@
 import pandas as pd
-from model_utils import estrai_modello, estrai_allestimento, estrai_cv, estrai_anni, unifica_allestimento
-from cleaning_functions import normalizza_testo, pulisci_cambio, pulisci_prezzo, pulisci_km, pulisci_cambio_dt_merged, pulisci_carburante, pulisci_indirizzo_AT
+from .model_utils import estrai_modello, estrai_allestimento, estrai_cv, estrai_anni, unifica_allestimento
+from .cleaning_functions import normalizza_testo, pulisci_cambio, pulisci_prezzo, pulisci_km, pulisci_cambio_dt_merged, pulisci_carburante, pulisci_indirizzo_AT
 import requests
 from geopy.distance import geodesic
 import os
@@ -131,10 +131,10 @@ def clean_data_AR(data_AR, only_cap_per_comune, motorizzazioni, modelli_ord, map
     data_AR = data_AR.merge(only_cap_per_comune[['CAP', 'Comune']], on='Comune', how='left')
     return data_AR
 
-from data_loader import load_csv_from_relative_path
-distanza = load_csv_from_relative_path(['Data', 'Processed_data', '0_Località', 'distanza.csv'])
-only_cap_per_comune = load_csv_from_relative_path(['Data', 'Processed_data', '0_Località', 'only_cap_per_comune.csv'])
-only_comune_per_cap = load_csv_from_relative_path(['Data', 'Processed_data', '0_Località', 'only_comune_per_cap.csv'])
+from ..paths import GEO
+distanza = pd.read_csv(GEO / 'distanza.csv')
+only_cap_per_comune = pd.read_csv(GEO / 'only_cap_per_comune.csv')
+only_comune_per_cap = pd.read_csv(GEO / 'only_comune_per_cap.csv')
 
 def data_formatting (data, only_cap_per_comune, distanza, comune_per_analisi, mappa_allestimenti, allestimento_performance, allestimento_sport, allestimento_middle, allestimento_base):
     data = data.merge(only_cap_per_comune[['Regione', 'Comune']], on='Comune', how='left')

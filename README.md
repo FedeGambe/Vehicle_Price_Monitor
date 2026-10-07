@@ -27,16 +27,18 @@ L'obiettivo è supportare gli utenti nella valutazione delle offerte disponibili
 
 ## Come si usa il programma?
 
-> 🟢 **L'utente deve utilizzare esclusivamente i notebook presenti nella cartella `Application/`.**  
-> Non è necessario modificare o eseguire manualmente altri file all'interno del progetto.
+> 🟢 **Si usano solo i notebook in `notebooks/`.**
 
-### Passaggi da seguire:
+### Setup (una volta)
 
-1. **Personalizza le configurazioni dei modelli auto nei file presenti in `Data/config/`** creando un file .py
+```bash
+pip install -e .        # installa il pacchetto vehicle_price_monitor + dipendenze
+```
 
-2. **Vai nella cartella `Application/`**
+### Passaggi
 
-3. **Esegui i notebook nell'ordine indicato:**
+1. **Crea la config del modello** in `vehicle_price_monitor/models_config/config_<Marca_Modello>.py` (vedi il README in quella cartella).
+2. **Esegui i notebook in `notebooks/` nell'ordine:**
    - `1_Scraping_and_Data_preparation.ipynb`  
      ↳ Scarica i dati dal web e li prepara per l'analisi
    - `2_Understanding_Pricing.ipynb`  
@@ -53,10 +55,19 @@ L'obiettivo è supportare gli utenti nella valutazione delle offerte disponibili
 
 ```plaintext
 Vehicle_Price_Monitor/
-├── Scraping/                  # Estrazione automatica dei dati online
-├── Data_Preparation/         # Pulizia, unificazione e preparazione dei dataset
-├── Data_Analysis/            # Analisi esplorativa, geolocalizzazione, ML
-├── Materiali/                # Dataset grezzi, dati puliti e file di configurazione
-├── Progetti/                 # Analisi dedicate a modelli auto specifici
-├── Programma/                # Notebook guida per l’esecuzione completa
-└── README.md                 # Questo file
+├── notebooks/                    # Unico entry point utente (1→4)
+├── vehicle_price_monitor/        # Codice riutilizzabile (pacchetto Python)
+│   ├── paths.py                  # Percorsi (ROOT, RAW, PROCESSED, MODELS, GEO) + load_config()
+│   ├── models_config/            # config_<Modello>.py: allestimenti, motorizzazioni, CV
+│   ├── scraping/                 # url_builders, scraping_functions
+│   ├── preparation/              # pulizia e formattazione dataset
+│   ├── analysis/                 # price_analysis (OLS, RF, appetibilità), plots
+│   └── dashboard.py              # dashboard Dash
+├── data/
+│   ├── raw/<Modello>/            # output grezzo dello scraping (+ raw/geo)
+│   ├── processed/<Modello>/      # dataset puliti (+ processed/geo)
+│   └── models/<Modello>/         # modelli ML salvati (.pkl)
+├── archive/                      # Materiale storico: vecchi notebook, Projects/, main deprecato
+├── pyproject.toml
+└── requirements.txt
+```

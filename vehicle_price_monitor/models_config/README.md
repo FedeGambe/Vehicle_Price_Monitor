@@ -1,6 +1,6 @@
 # ⚙️ Configurazioni Modelli Auto
 
-Questa cartella (`Materiali/config/`) contiene i **file .py di configurazione** specifici per ogni modello di auto da analizzare all'interno del progetto **Auto Price Monitor**.
+Questa cartella (`vehicle_price_monitor/models_config/`) contiene i **file .py di configurazione** specifici per ogni modello di auto da analizzare all'interno del progetto **Auto Price Monitor**.
 
 ---
 

@@ -1,7 +1,6 @@
 beautifulsoup4==4.13.4
 dash==3.2.0
 dash_bootstrap_components==2.0.3
-Data_Preparation==0.0.1
 geopy==2.4.1
 ipython==9.0.2
 joblib==1.4.2
