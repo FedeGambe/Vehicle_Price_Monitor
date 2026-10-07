@@ -9,3 +9,6 @@ dependencies = { file = ["requirements.txt"] }
 
 [tool.setuptools.packages.find]
 include = ["vehicle_price_monitor*"]
+
+[tool.setuptools.package-data]
+vehicle_price_monitor = ["web/*"]

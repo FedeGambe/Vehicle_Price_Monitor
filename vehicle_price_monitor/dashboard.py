@@ -1,4 +1,4 @@
-"""Genera docs/index.html: pagina unica e autonoma (dati incorporati, nessun server, nessun modello ML da caricare)."""
+"""Genera docs/index.html: dashboard in un solo file (dati incorporati, nessun server, nessun modello ML da caricare)."""
 import html
 import json
 from datetime import datetime
@@ -12,6 +12,7 @@ from sklearn.model_selection import train_test_split
 
 from .paths import DOCS, MODELS, PROCESSED, load_config, modelli
 
+WEB = __import__("pathlib").Path(__file__).parent / "web"  # template.html e logica.js
 ESCLUSE = ["Prezzo", "Distanza", "Venditore"]  # colonne escluse da X, come in train()
 FAVICON = "data:image/svg+xml," + quote(
     "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='#101a33'/>"
@@ -19,7 +20,7 @@ FAVICON = "data:image/svg+xml," + quote(
 
 
 def _dati_modello(nome):
-    """Coefficienti della regressione lineare (usata dal calcolatore nel browser), metriche e migliori offerte."""
+    """Coefficienti della regressione lineare (il calcolo avviene nel browser), medie, intervalli osservati, metriche e migliori offerte."""
     cfg = load_config(nome)
     data = pd.read_csv(PROCESSED / nome / f"data_{nome}.csv")
     dummy = pd.read_csv(PROCESSED / nome / f"data_dummy_{nome}.csv")
@@ -33,9 +34,14 @@ def _dati_modello(nome):
         "nome": nome, "titolo": f"{cfg.marca} {cfg.modello}", "n": len(data), "prezzo_medio": round(data["Prezzo"].mean()),
         "aggiornato": datetime.fromtimestamp((PROCESSED / nome / f"data_{nome}.csv").stat().st_mtime).strftime("%d/%m/%Y"),
         "cols": cols, "coef": lr.coef_.tolist(), "intercept": float(lr.intercept_),
+        "medie": {c: float(dummy[c].mean()) for c in cols},
         "r2_lin": r2_score(yte, pred), "rmse_lin": mean_squared_error(yte, pred) ** 0.5,
-        "allestimenti": tier, "carburanti": sorted(data["Carburante"].unique()), "top": [],
-        "r2_rf": None, "rmse_rf": None,
+        "allestimenti": tier, "carburanti": sorted(data["Carburante"].unique()),
+        "tipico": {"anni": int(data["Anni"].median()), "km": int(round(data["Chilometraggio"].median(), -3)),
+                   "cv": int(data["CV"].median()), "prezzo": int(round(data["Prezzo"].median(), -2))},
+        "oss": {c: [int(data[k].quantile(.01)), int(data[k].quantile(.99))]  # 1°-99° percentile: ignora gli annunci anomali
+                for c, k in (("anni", "Anni"), ("km", "Chilometraggio"), ("cv", "CV"), ("prezzo", "Prezzo"))},
+        "top": [], "r2_rf": None, "rmse_rf": None,
     }
     if (MODELS / nome / "modello_rf.pkl").exists():
         from .pipeline import valuta
@@ -49,120 +55,86 @@ def _dati_modello(nome):
 
 
 def _riga_modello(m):
-    r2_rf = "" if m["r2_rf"] is None else f"{m['r2_rf']:.2f}"
+    r2_rf = "–" if m["r2_rf"] is None else f"{m['r2_rf']:.2f}"
+    rmse_rf = "–" if m["rmse_rf"] is None else f"±{round(m['rmse_rf']):,} €".replace(",", ".")
     prezzo = f"{m['prezzo_medio']:,}".replace(",", ".")
-    return (f"<tr><td>{html.escape(m['titolo'])}</td><td class='num'>{m['n']}</td><td class='num'>{prezzo} €</td>"
-            f"<td class='num'>{r2_rf}</td><td class='num'>{m['r2_lin']:.2f}</td><td>{m['aggiornato']}</td></tr>")
+    rmse_lin = f"±{round(m['rmse_lin']):,} €".replace(",", ".")
+    return (f"<tr><td>{html.escape(m['titolo'])}</td><td class='n'>{m['n']}</td><td class='n'>{prezzo} €</td>"
+            f"<td class='n'>{r2_rf}</td><td class='n'>{rmse_rf}</td><td class='n'>{m['r2_lin']:.2f}</td><td class='n'>{rmse_lin}</td>"
+            f"<td>{m['aggiornato']}</td></tr>")
 
 
-def _capitoli(ms):
-    righe = "".join(_riga_modello(m) for m in ms)
-    opzioni = "".join(f"<option value='{m['nome']}'>{html.escape(m['titolo'])}</option>" for m in ms)
-    dati = json.dumps(ms, ensure_ascii=False).replace("</", "<\\/")
-    return f'''
-<section class="capitolo" id="c0" data-titolo="Sintesi" data-parte=""><h2 data-n="Sintesi">Sovra o sotto prezzata?</h2>
-  <p>Vehicle Price Monitor raccoglie gli annunci di auto usate da <strong>Autoscout24, Automobile.it, Autosupermarket e Subito</strong>,
-  li pulisce e stima il prezzo di mercato con modelli statistici. Se il prezzo stimato è più alto di quello richiesto, l'auto è <strong>sotto prezzata</strong>: un buon affare.</p>
-  <div class="tabella"><table><thead><tr><th>Modello</th><th>Annunci</th><th>Prezzo medio</th><th>R² Random Forest</th><th>R² lineare</th><th>Dati del</th></tr></thead><tbody>{righe}</tbody></table></div>
-</section>
-<section class="capitolo parte-a" id="c1" data-titolo="1. Calcola" data-parte="a"><h2 data-n="Capitolo 01">Calcola il prezzo giusto</h2>
-  <p>Inserisci i dati dell'annuncio che hai trovato: il calcolo avviene nel tuo browser.</p>
-  <div class="form">
-    <label>Modello<select id="f-modello">{opzioni}</select></label>
-    <label>Prezzo annuncio (€)<input id="f-prezzo" type="number" min="0" value="10000"></label>
-    <label>Anni<input id="f-anni" type="number" min="0" max="30" value="3"></label>
-    <label>Chilometraggio<input id="f-km" type="number" min="0" value="50000"></label>
-    <label>CV<input id="f-cv" type="number" min="0" value="100"></label>
-    <label>Cambio<select id="f-cambio"><option value="0">Manuale</option><option value="1">Automatico</option></select></label>
-    <label>Allestimento<select id="f-allest"></select></label>
-    <label>Carburante<select id="f-carb"></select></label>
-    <label>Macro regione<select id="f-area"><option>Nord-est</option><option>Nord-ovest</option><option>Centro</option><option>Sud</option><option>Isole</option></select></label>
-  </div>
-  <button class="bottone" id="calcola" type="button">Calcola</button>
-  <div class="esito" id="esito" hidden aria-live="polite"></div>
-</section>
-<section class="capitolo parte-b" id="c2" data-titolo="2. Migliori offerte" data-parte="b"><h2 data-n="Capitolo 02">Le migliori offerte</h2>
-  <p>Annunci sotto prezzati secondo la Random Forest, ordinati per <strong>indice di appetibilità</strong> (prezzo, km, anni, distanza, allestimento, cambio, CV: pesi in <code>data/config/utente.toml</code>).</p>
-  <div class="form"><label>Modello<select id="o-modello">{opzioni}</select></label></div>
-  <div class="tabella"><table><thead><tr><th>Indice</th><th>Prezzo</th><th>Previsto</th><th>Risparmio</th><th>Anni</th><th>Km</th><th>Dist. km</th><th>Allestimento</th><th>Alim.</th><th></th></tr></thead><tbody id="top-corpo"></tbody></table></div>
-</section>
-<section class="capitolo" id="c3" data-titolo="3. Come funziona" data-parte=""><h2 data-n="Capitolo 03">Come funziona</h2>
-  <p>Due modelli per ogni auto, addestrati sugli annunci raccolti: una <strong>Random Forest</strong> (più precisa, usata per la classifica) e una <strong>regressione lineare</strong>
-  (i cui coefficienti sono incorporati in questa pagina, così il calcolatore funziona senza caricare nulla). Per questo il calcolatore può differire un po' dalla classifica.
-  L'errore tipico (RMSE) è mostrato sotto ogni stima: se la differenza è più piccola dell'errore, il prezzo è <em>in linea</em>.</p>
-  <div class="conclusione"><p>Le stime valgono per i filtri usati nello scraping (prezzo, anni, km) e per il comune di residenza scelto.</p></div>
-</section>
-<section class="capitolo" id="c4" data-titolo="4. Aggiornare i dati" data-parte=""><h2 data-n="Capitolo 04">Aggiornare i dati</h2>
-  <p>Dalla cartella del progetto:</p>
-  <ul><li><code>python -m vehicle_price_monitor run Opel_Corsa</code>: scarica, pulisce, addestra e rigenera questa pagina.</li>
-  <li><code>python -m vehicle_price_monitor top Opel_Corsa --prezzo-max 12000 --dist-max 150</code>: classifica nel terminale con i tuoi filtri.</li>
-  <li><code>python -m vehicle_price_monitor -h</code>: tutti i comandi. Nuove auto: aggiungi <code>data/config/Marca_Modello.toml</code>.</li></ul>
-</section>
-<script type="application/json" id="dati">{dati}</script>
-<script>{_JS}</script>
+SEZIONI = '''
+      <fieldset class="scheda sezione">
+        <legend><span class="passo">1</span>L'auto</legend>
+        <div class="campi">
+          <div class="campo largo"><label class="etichetta" for="modello">Modello</label><select id="modello"></select></div>
+          <div class="campo"><label class="etichetta" for="allest">Allestimento</label><select id="allest"></select></div>
+          <fieldset class="campo"><legend>Cambio</legend><div class="segmenti" id="seg-cambio"></div></fieldset>
+          <fieldset class="campo largo"><legend>Carburante</legend><div class="segmenti colonne" id="seg-carb"></div></fieldset>
+        </div>
+      </fieldset>
+
+      <fieldset class="scheda sezione">
+        <legend><span class="passo">2</span>I numeri dell'annuncio</legend>
+        <div class="campi">
+          <div class="campo" data-contatore="anni"><label class="etichetta" for="anni">Anni dall'immatricolazione</label></div>
+          <div class="campo" data-numero="cv" data-unita="CV"><label class="etichetta" for="cv">Potenza</label></div>
+          <div class="campo" data-numero="km" data-unita="km"><label class="etichetta" for="km">Chilometraggio</label></div>
+          <div class="campo" data-numero="prezzo" data-unita="€"><label class="etichetta" for="prezzo">Prezzo richiesto</label></div>
+        </div>
+      </fieldset>
+
+      <fieldset class="scheda sezione">
+        <legend><span class="passo">3</span>Dove si trova</legend>
+        <div class="campi">
+          <fieldset class="campo largo"><legend>Zona</legend><div class="segmenti colonne" id="seg-area"></div></fieldset>
+        </div>
+      </fieldset>
 '''
 
+KPI = '''
+          <svg class="indicatore" viewBox="0 0 240 152" role="img" aria-labelledby="ind-desc">
+            <desc id="ind-desc">Differenza tra prezzo stimato e prezzo richiesto</desc>
+            <path class="traccia" d="M20 120 A100 100 0 0 1 220 120" fill="none" stroke-width="20" stroke-linecap="round"/>
+            <path class="valore" id="arco" d="M20 120 A100 100 0 0 1 220 120" fill="none" stroke-width="20" stroke-linecap="round" pathLength="100" stroke-dasharray="0 100"/>
+            <line class="media" x1="120" y1="8" x2="120" y2="40"/>
+            <text class="grande" id="valore-grande" x="120" y="112" text-anchor="middle">–</text>
+            <text class="estremi" x="20" y="148" text-anchor="middle">sovra</text>
+            <text class="estremi" x="220" y="148" text-anchor="middle">sotto</text>
+          </svg>
+          <p class="delta" id="delta" aria-live="polite"></p>
+          <div class="verdetto" id="verdetto"></div>
+          <p class="confronto" id="confronto"></p>
+'''
 
-_JS = r'''
-(() => {
-  const D = Object.fromEntries(JSON.parse(document.getElementById("dati").textContent).map(m => [m.nome, m]));
-  const $$ = id => document.getElementById(id);
-  const AREE = {"Nord-est": null, "Nord-ovest": "is NO vs NE", "Centro": "is Centro vs NE", "Sud": "is Sud_Isole vs NE", "Isole": "is Sud_Isole vs NE"};
-  const eur = n => Math.round(n).toLocaleString("it-IT") + " €";
-  const riempi = (sel, valori) => sel.replaceChildren(...valori.map(v => Object.assign(document.createElement("option"), {textContent: v})));
+DETTAGLIO = '''
+        <div class="cascata" id="cascata" role="list"></div>
+        <div class="asse-x" aria-hidden="true"><span></span><div class="tacche" id="tacche"></div><span></span></div>
+        <div class="legenda" aria-hidden="true"><span><i style="background:var(--teal)"></i>▲ alza il prezzo</span><span><i style="background:var(--arancio)"></i>▼ abbassa il prezzo</span></div>
+'''
 
-  function cambiaModello() {
-    const m = D[$$("f-modello").value];
-    riempi($$("f-allest"), Object.keys(m.allestimenti));
-    riempi($$("f-carb"), m.carburanti);
-    $$("esito").hidden = true;
-  }
-  $$("f-modello").addEventListener("change", cambiaModello);
-  cambiaModello();
+METODO = '''
+          <p>Si parte dal prezzo stimato per l'<strong>auto media</strong> del modello e si aggiunge, una voce alla volta, l'effetto delle caratteristiche di questa auto rispetto alla media,
+            dalla più influente alla meno influente. L'ultima riga è il prezzo stimato; il segno arancio è il prezzo richiesto.</p>
+          <p>Gli effetti vengono da una regressione lineare sugli annunci raccolti: descrivono il modello, non una causa. La classifica in fondo alla pagina usa invece una Random Forest, più precisa:
+            per questo le due stime possono differire.</p>
+'''
 
-  $$("calcola").addEventListener("click", () => {
-    const m = D[$$("f-modello").value], v = id => $$(id).value;
-    const f = {Anni: +v("f-anni"), Chilometraggio: +v("f-km"), CV: +v("f-cv"), Cambio: +v("f-cambio"),
-      [`is_${v("f-carb")} vs Benzina`]: 1, [`is_${m.allestimenti[v("f-allest")]} vs base`]: 1, [AREE[v("f-area")]]: 1};
-    const previsto = m.cols.reduce((s, c, i) => s + m.coef[i] * (f[c] || 0), m.intercept);
-    const prezzo = +v("f-prezzo"), delta = previsto - prezzo;
-    const [classe, testo] = delta > m.rmse_lin ? ["buono", "Sotto prezzata: buon affare"]
-      : delta < -m.rmse_lin ? ["cattivo", "Sovra prezzata"] : ["", "Prezzo in linea con il mercato"];
-    const box = $$("esito");
-    box.className = "esito " + classe;
-    const s = Object.assign(document.createElement("strong"), {className: "verdetto", textContent: testo});
-    const r = Object.assign(document.createElement("div"), {
-      textContent: `Prezzo richiesto ${eur(prezzo)} · prezzo stimato ${eur(previsto)} · differenza ${delta >= 0 ? "+" : ""}${eur(delta)}`});
-    const e = Object.assign(document.createElement("small"), {
-      textContent: `Errore tipico del modello: ±${eur(m.rmse_lin)} (regressione lineare, R² ${m.r2_lin.toFixed(2)}).`});
-    box.replaceChildren(s, r, e);
-    box.hidden = false;
-  });
-
-  function tabella() {
-    const m = D[$$("o-modello").value], corpo = $$("top-corpo");
-    corpo.replaceChildren();
-    if (!m.top.length) {
-      const td = Object.assign(document.createElement("td"), {colSpan: 10, textContent: "Nessuna offerta (modello non ancora addestrato?)"});
-      corpo.append(document.createElement("tr")); corpo.lastChild.append(td);
-      return;
-    }
-    for (const o of m.top) {
-      const tr = document.createElement("tr");
-      const celle = [o.indice.toFixed(2), eur(o.prezzo), eur(o.previsto), "+" + eur(o.previsto - o.prezzo), o.anni, o.km.toLocaleString("it-IT"), o.dist, o.allest, o.carb];
-      celle.forEach((t, i) => {
-        const td = Object.assign(document.createElement("td"), {textContent: t});
-        if (i < 7) td.className = "num" + (i === 3 ? " pos" : "");
-        tr.append(td);
-      });
-      const a = Object.assign(document.createElement("a"), {href: o.link, target: "_blank", rel: "noopener", textContent: "Apri"});
-      const td = document.createElement("td"); td.append(a); tr.append(td);
-      corpo.append(tr);
-    }
-  }
-  $$("o-modello").addEventListener("change", tabella);
-  tabella();
-})();
+RISULTATI = '''
+  <section class="risultati" id="risultati" aria-label="Risultati">
+    <div class="scheda">
+      <h2>Risultati per modello</h2>
+      <p>Qualità dei due modelli addestrati sugli annunci raccolti. R² più vicino a 1 e errore tipico (RMSE) più basso significano stime più affidabili.</p>
+      <div class="tabella"><table><thead><tr><th>Modello</th><th>Annunci</th><th>Prezzo medio</th><th>R² Random Forest</th><th>Errore RF</th><th>R² lineare</th><th>Errore lineare</th><th>Dati del</th></tr></thead><tbody>__RIGHE__</tbody></table></div>
+    </div>
+    <div class="scheda">
+      <h2>Le migliori offerte</h2>
+      <p>Annunci sotto prezzati secondo la Random Forest, ordinati per <strong>indice di appetibilità</strong> (prezzo, km, anni, distanza, allestimento, cambio, CV: i pesi sono in <code>data/config/utente.toml</code>).</p>
+      <div class="campo selettore"><label class="etichetta" for="o-modello">Modello</label><select id="o-modello"></select></div>
+      <div class="tabella"><table><thead><tr><th>Indice</th><th>Prezzo</th><th>Previsto</th><th>Risparmio</th><th>Anni</th><th>Km</th><th>Dist. km</th><th>Allestimento</th><th>Alim.</th><th></th></tr></thead><tbody id="top-corpo"></tbody></table></div>
+    </div>
+  </section>
 '''
 
 
@@ -171,19 +143,20 @@ def build(nomi=None, out=DOCS / "index.html"):
     if not nomi:
         raise SystemExit("Nessun modello con dati processati: esegui prima 'run <modello>'")
     ms = [_dati_modello(n) for n in nomi]
-    cover = (DOCS / "copertina.svg").read_text(encoding="utf8").replace(
-        "<svg ", '<svg class="bauhaus" preserveAspectRatio="xMidYMax slice" aria-hidden="true" ', 1)
-    voci = [("c0", "Sintesi", "gruppo-grigio", ""), ("c1", "1. Calcola", "", ""), ("c2", "2. Migliori offerte", "", "link-b"),
-            ("c3", "3. Come funziona", "gruppo-grigio", ""), ("c4", "4. Aggiornare i dati", "gruppo-grigio", "")]
-    indice = "".join(f'<li class="{li}"><a class="{a}" href="#{i}">{t}</a></li>' for i, t, li, a in voci)
-    tag = "".join(f"<span>{t}</span>" for t in ("Web scraping", "Machine Learning", "Prezzi auto usate"))
-    pagina = (DOCS / "template.html").read_text(encoding="utf8")
+    dati = json.dumps({"ordine": nomi, "modelli": {m["nome"]: m for m in ms}}, ensure_ascii=False).replace("</", "<\\/")
+    pagina = (WEB / "template.html").read_text(encoding="utf8")
     for k, v in {
         "LINGUA": "it", "TITOLO": "Vehicle Price Monitor", "TITOLO_HTML": "Vehicle <em>Price</em> Monitor",
-        "DESCRIZIONE": "Quanto vale davvero un'auto usata? Confronto dei prezzi e stima sovra/sotto prezzo.",
-        "SOTTOTITOLO": "Quanto vale davvero un'auto usata? Scopri se un annuncio è <strong>sovra o sotto prezzato</strong>.",
-        "TAG": tag, "COVER_SVG": cover, "INDICE_VOCI": indice, "CAPITOLI": _capitoli(ms), "FAVICON_URI": FAVICON,
-        "FOOTER": f"<p>Dati aggiornati al {ms[0]['aggiornato']} · Autoscout24, Automobile.it, Autosupermarket, Subito</p>",
+        "DESCRIZIONE": "Un'auto usata è sovra o sotto prezzata? Stima del prezzo di mercato e migliori offerte.",
+        "INTRO": "Inserisci i dati di un annuncio e scopri se il prezzo è in linea con il mercato. "
+                 "La stima si basa sugli annunci di Autoscout24, Automobile.it, Autosupermarket e Subito.",
+        "LINK_BARRA": "", "FAVICON_URI": FAVICON, "SEZIONI_CONTROLLI": SEZIONI,
+        "TITOLO_KPI": "Prezzo giusto?", "KPI": KPI, "ETICHETTA_KPI": "Stima − richiesto",
+        "TITOLO_DETTAGLIO": "Cosa fa il prezzo", "DETTAGLIO": DETTAGLIO, "NOTE_METODO": METODO,
+        "RISULTATI": RISULTATI.replace("__RIGHE__", "".join(_riga_modello(m) for m in ms)),
+        "NOTA_FOOTER": ("<p>Stime indicative su annunci raccolti il " + ms[0]["aggiornato"] + ": i prezzi di vendita reali possono differire, "
+                        "e il modello descrive correlazioni, non cause. Nessun dato inserito lascia il tuo browser.</p>"),
+        "DATI": dati, "LOGICA": (WEB / "logica.js").read_text(encoding="utf8"),
     }.items():
         pagina = pagina.replace("{{" + k + "}}", v)
     out.write_text(pagina, encoding="utf8")

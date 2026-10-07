@@ -20,7 +20,7 @@ L'obiettivo è supportare gli utenti nella valutazione delle offerte disponibili
   - Ponderazione delle caratteristiche preferite (es. chilometraggio, potenza, anno, prezzo)
 - **Classifica delle migliori offerte** in base alle preferenze dell’utente
 - **Predizione del prezzo di mercato** con modelli di machine learning
-- **Dashboard HTML** (`docs/index.html`): pagina unica che si apre con doppio clic. Calcolatore sovra/sotto prezzo e classifica delle migliori offerte, senza server né modelli da caricare
+- **Dashboard HTML** (`docs/index.html`): pagina unica che si apre con doppio clic. Calcolatore sovra/sotto prezzo con grafico di cosa fa il prezzo, e in fondo le tabelle dei risultati (qualità dei modelli e migliori offerte). Nessun server, nessun modello da caricare
 
 ---
 
@@ -68,13 +68,13 @@ Vehicle_Price_Monitor/
 │   ├── __main__.py               # Riga di comando
 │   ├── pipeline.py               # scrape / prepare / train / top
 │   ├── dashboard.py              # Genera docs/index.html
+│   ├── web/                      # template.html e logica.js della dashboard
 │   ├── paths.py                  # Percorsi e lettura dei TOML
 │   ├── scraping/                 # url_builders, scraping_functions
 │   ├── preparation/              # pulizia e formattazione dataset
 │   └── analysis/                 # price_analysis (OLS, RF, appetibilità), plots
 ├── docs/
 │   ├── index.html                # La dashboard (generata, servita da GitHub Pages)
-│   ├── template.html             # Struttura e stile della pagina
 │   ├── copertina.svg             # Copertina orizzontale (1600x900)
 │   └── copertina-verticale.svg   # Copertina verticale (1080x1350)
 ├── data/
