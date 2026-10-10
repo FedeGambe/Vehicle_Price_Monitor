@@ -1,0 +1,98 @@
+# Configurazione Fiat Tipo
+# Tipo (356, 2016-2025), prima e dopo il restyling del 2020 (compresa la Cross), 5 porte, 4 porte e SW
+marca = "Fiat"
+modello = "Tipo"
+
+# Percorso del modello su ogni sito, nel formato "marca/modello" (come compare nell'URL del sito)
+[siti]
+"autoscout" = "fiat/tipo"
+"automobile_it" = "fiat/tipo"
+"subito_it" = "fiat/tipo"
+"autosupermarket" = "fiat/tipo"
+
+# Filtri di ricerca di default (sovrascrivibili da riga di comando). 0 = nessun limite
+[ricerca]
+prezzo_min = 3000
+prezzo_max = 30000
+km_min = 0
+km_max = 0
+anno_min = 2016
+anno_max = 0
+
+# Classificazione degli allestimenti per segmento
+[allestimenti]
+performance = []
+sport = ["Sport", "City Sport", "S-Design"]
+middle = ["Lounge", "Life", "City Life", "Cross", "City Cross", "Mirror", "Street", "Garmin"]
+base = ["Tipo", "Pop", "Easy", "Business", "Red", "Opening Edition"]
+
+# Nomi trovati negli annunci -> nome standard dell'allestimento
+[mappa_allestimenti]
+"city sport" = "City Sport"
+"s-design" = "S-Design"
+"s design" = "S-Design"
+"s desain" = "S-Design"
+"city cross" = "City Cross"
+"city life" = "City Life"
+"citylife" = "City Life"
+"sport" = "Sport"
+"cross" = "Cross"
+"life" = "Life"
+"lounge" = "Lounge"
+"mirror" = "Mirror"
+"street" = "Street"
+"garmin" = "Garmin"
+"opening edition" = "Opening Edition"
+"easy" = "Easy"
+"pop" = "Pop"
+"business" = "Business"
+"businness" = "Business"
+" red " = "Red"
+"(red)" = "Red"
+# Dal restyling la versione base si chiama solo "Tipo": se il titolo non indica altro la si considera base
+"tipo" = "Tipo"
+
+# Sigla motorizzazione negli annunci -> nome standard
+# Vince la chiave più lunga trovata nel titolo; i CV scritti nel titolo hanno comunque la precedenza su [mappa_cv]
+[motorizzazioni]
+"1.4 tjt" = "1.4 T-Jet"
+"1.4 t-jet" = "1.4 T-Jet"
+"1.4 95" = "1.4"
+"1.4 easy" = "1.4"
+"1.4 pop" = "1.4"
+"1.4 lounge" = "1.4"
+"1.4 mirror" = "1.4"
+"1.4 street" = "1.4"
+"1.4 sport" = "1.4"
+"1.4 business" = "1.4"
+"1.4 gpl" = "1.4"
+"1.4 neopatentati" = "1.4"
+"1.3 mjt" = "1.3 Multijet"
+"1.3 multijet" = "1.3 Multijet"
+"1.3 m-jet" = "1.3 Multijet"
+"1.6 mjt" = "1.6 Multijet"
+"1.6 multijet" = "1.6 Multijet"
+"1.6 m-jet" = "1.6 Multijet"
+"1.6 e-torq" = "1.6 E-Torq"
+"1.0 t3" = "1.0 T3"
+"1.0 life" = "1.0 T3"
+"1.0 cross" = "1.0 T3"
+"1.0 city" = "1.0 T3"
+"1.0 5 porte" = "1.0 T3"
+"1.0 100" = "1.0 T3"
+"100cv" = "1.0 T3"
+"1.6 diesel" = "1.6 Multijet"
+"1.6cc" = "1.6 Multijet"
+"1.5 hybrid" = "1.5 Hybrid"
+"1.5 t4" = "1.5 Hybrid"
+"hybrid" = "1.5 Hybrid"
+
+# Cavalli per ogni motorizzazione (nome standard): la potenza più diffusa, usata se il titolo non indica i CV
+[mappa_cv]
+"1.4" = 95
+"1.4 T-Jet" = 120
+"1.3 Multijet" = 95
+"1.6 Multijet" = 120
+"1.6 E-Torq" = 110
+"1.0 T3" = 100
+"1.5 Hybrid" = 130

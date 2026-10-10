@@ -1,0 +1,68 @@
+# Configurazione Toyota Corolla
+# Dodicesima serie (dal 2019), prima e dopo il restyling del 2023, berlina e Touring Sports (esclusa la Corolla Cross)
+marca = "Toyota"
+modello = "Corolla"
+
+# Percorso del modello su ogni sito, nel formato "marca/modello" (come compare nell'URL del sito)
+[siti]
+"autoscout" = "toyota/corolla"
+"automobile_it" = "toyota/corolla"
+"subito_it" = "toyota/corolla"
+"autosupermarket" = "toyota/corolla"
+
+# Filtri di ricerca di default (sovrascrivibili da riga di comando). 0 = nessun limite
+# Dal 2019: prima in Italia si vendeva la Auris, quindi non c'è una serie precedente da escludere
+[ricerca]
+prezzo_min = 3000
+prezzo_max = 30000
+km_min = 0
+km_max = 0
+anno_min = 2019
+anno_max = 0
+
+# Classificazione degli allestimenti per segmento
+[allestimenti]
+performance = []
+sport = ["GR Sport"]
+middle = ["Style", "Lounge", "Trend", "Trek", "Dynamic"]
+base = ["Active", "Business", "Comfort"]
+
+# Nomi trovati negli annunci -> nome standard dell'allestimento
+[mappa_allestimenti]
+"gr sport" = "GR Sport"
+"gr-sport" = "GR Sport"
+"style" = "Style"
+"lounge" = "Lounge"
+"trend" = "Trend"
+"trek" = "Trek"
+"dynamic" = "Dynamic"
+"active" = "Active"
+"business" = "Business"
+"comfort" = "Comfort"
+
+# Sigla motorizzazione negli annunci -> nome standard
+# Vince la chiave più lunga trovata nel titolo; i CV scritti nel titolo hanno comunque la precedenza su [mappa_cv]
+# Per le ibride si indica la potenza complessiva del sistema (alcuni siti riportano solo quella del motore termico)
+[motorizzazioni]
+"1.8h" = "1.8 Hybrid"
+"1.8 hybrid" = "1.8 Hybrid"
+"1.8 full" = "1.8 Hybrid"
+"1.8 vvt" = "1.8 Hybrid"
+"1.8 fhev" = "1.8 Hybrid"
+"1.8 hv" = "1.8 Hybrid"
+"1.8 benz" = "1.8 Hybrid"
+"1.8 active" = "1.8 Hybrid"
+"1.8 style" = "1.8 Hybrid"
+"hybrid" = "1.8 Hybrid"
+"2.0h" = "2.0 Hybrid"
+"2.0 hybrid" = "2.0 Hybrid"
+"2.0 vvt" = "2.0 Hybrid"
+"2.0 180" = "2.0 Hybrid"
+"1.2 turbo" = "1.2 Turbo"
+"1.2t" = "1.2 Turbo"
+
+# Cavalli per ogni motorizzazione (nome standard): la potenza più diffusa, usata se il titolo non indica i CV
+[mappa_cv]
+"1.8 Hybrid" = 122
+"2.0 Hybrid" = 184
+"1.2 Turbo" = 116

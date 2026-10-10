@@ -1,0 +1,76 @@
+# Configurazione Peugeot 208
+# Seconda serie (dal 2019), prima e dopo il restyling del 2023, compresa la e-208
+marca = "Peugeot"
+modello = "208"
+
+# Percorso del modello su ogni sito, nel formato "marca/modello" (come compare nell'URL del sito)
+[siti]
+"autoscout" = "peugeot/208"
+"automobile_it" = "peugeot/208"
+"subito_it" = "peugeot/208"
+"autosupermarket" = "peugeot/208"
+
+# Filtri di ricerca di default (sovrascrivibili da riga di comando). 0 = nessun limite
+# Dal 2020: le immatricolazioni 2019 sono ancora in buona parte della prima serie
+[ricerca]
+prezzo_min = 3000
+prezzo_max = 30000
+km_min = 0
+km_max = 0
+anno_min = 2020
+anno_max = 0
+
+# Classificazione degli allestimenti per segmento
+[allestimenti]
+performance = []
+sport = ["GT", "GT Line", "GT Pack"]
+middle = ["Allure", "Allure Pack", "Style", "Edition"]
+base = ["Like", "Active", "Active Pack", "Business", "Top"]
+
+# Nomi trovati negli annunci -> nome standard dell'allestimento
+[mappa_allestimenti]
+"gt pack" = "GT Pack"
+"gt line" = "GT Line"
+"gt-line" = "GT Line"
+" gt " = "GT"
+" gt," = "GT"
+"allure pack" = "Allure Pack"
+"allure" = "Allure"
+"style" = "Style"
+"edition" = "Edition"
+"active pack" = "Active Pack"
+"act. pack" = "Active Pack"
+"active" = "Active"
+"like" = "Like"
+"business" = "Business"
+"top!" = "Top"
+
+# Sigla motorizzazione negli annunci -> nome standard
+# Vince la chiave più lunga trovata nel titolo; i CV scritti nel titolo hanno comunque la precedenza su [mappa_cv]
+[motorizzazioni]
+"puretech" = "1.2 PureTech"
+"1.2 benzina" = "1.2 PureTech"
+"1.2 turbo" = "1.2 PureTech"
+"turbo benzina" = "1.2 PureTech"
+"1.2 75" = "1.2 PureTech 75"
+"puretech 75" = "1.2 PureTech 75"
+"1.2 100" = "1.2 PureTech"
+"bluehdi" = "1.5 BlueHDi"
+"bhdi" = "1.5 BlueHDi"
+"1.5 hdi" = "1.5 BlueHDi"
+"1.5 diesel" = "1.5 BlueHDi"
+"hybrid" = "1.2 Hybrid"
+"hybrid 136" = "1.2 Hybrid 136"
+"hybrid 145" = "1.2 Hybrid 145"
+"e-208" = "e-208"
+"elettric" = "e-208"
+
+# Cavalli per ogni motorizzazione (nome standard): la potenza più diffusa, usata se il titolo non indica i CV
+[mappa_cv]
+"1.2 PureTech" = 100
+"1.2 PureTech 75" = 75
+"1.5 BlueHDi" = 100
+"1.2 Hybrid 136" = 136
+"1.2 Hybrid 145" = 145
+"1.2 Hybrid" = 110
+"e-208" = 136

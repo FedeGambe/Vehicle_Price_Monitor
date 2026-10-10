@@ -1,0 +1,80 @@
+# Configurazione Peugeot 308
+# Terza serie (dal 2021), prima e dopo il restyling del 2025, berlina e SW
+marca = "Peugeot"
+modello = "308"
+
+# Percorso del modello su ogni sito, nel formato "marca/modello" (come compare nell'URL del sito)
+[siti]
+"autoscout" = "peugeot/308"
+"automobile_it" = "peugeot/308"
+"subito_it" = "peugeot/308"
+"autosupermarket" = "peugeot/308"
+
+# Filtri di ricerca di default (sovrascrivibili da riga di comando). 0 = nessun limite
+# Dal 2022: le immatricolazioni 2021 sono ancora in buona parte della seconda serie
+[ricerca]
+prezzo_min = 3000
+prezzo_max = 30000
+km_min = 0
+km_max = 0
+anno_min = 2022
+anno_max = 0
+
+# Classificazione degli allestimenti per segmento
+[allestimenti]
+performance = []
+sport = ["GT", "GT Pack"]
+middle = ["Allure", "Allure Pack"]
+base = ["Active", "Active Pack", "Business", "Style"]
+
+# Nomi trovati negli annunci -> nome standard dell'allestimento
+[mappa_allestimenti]
+"gt exclusive" = "GT Pack"
+"gt pack" = "GT Pack"
+"gt line" = "GT"
+" gt " = "GT"
+" gt," = "GT"
+"allure pack" = "Allure Pack"
+"allure" = "Allure"
+"active pack" = "Active Pack"
+"act. pack" = "Active Pack"
+"active" = "Active"
+"business" = "Business"
+"style" = "Style"
+"first edition" = "GT Pack"
+
+# Sigla motorizzazione negli annunci -> nome standard
+# Vince la chiave più lunga trovata nel titolo; i CV scritti nel titolo hanno comunque la precedenza su [mappa_cv]
+[motorizzazioni]
+"puretech" = "1.2 PureTech"
+"1.2 benzina" = "1.2 PureTech"
+"1.2 turbo" = "1.2 PureTech"
+"1.2 130" = "1.2 PureTech"
+"bluehdi" = "1.5 BlueHDi"
+"buehdi" = "1.5 BlueHDi"
+"1.5 hdi" = "1.5 BlueHDi"
+"1.5 diesel" = "1.5 BlueHDi"
+"hybrid" = "1.2 Hybrid"
+"hybrid 136" = "1.2 Hybrid 136"
+"hybrid 145" = "1.2 Hybrid 145"
+"1.2 hybrid" = "1.2 Hybrid"
+"plug-in hybrid" = "Plug-in Hybrid"
+"hybrid phev" = "Plug-in Hybrid"
+"phev" = "Plug-in Hybrid"
+"hybrid 180" = "Plug-in Hybrid"
+"hybrid 195" = "Plug-in Hybrid"
+"hybrid 225" = "Plug-in Hybrid"
+"hy180" = "Plug-in Hybrid"
+"hy225" = "Plug-in Hybrid"
+"e-308" = "e-308"
+"elettric" = "e-308"
+
+# Cavalli per ogni motorizzazione (nome standard): la potenza più diffusa, usata se il titolo non indica i CV
+[mappa_cv]
+"1.2 PureTech" = 130
+"1.5 BlueHDi" = 130
+"1.2 Hybrid 136" = 136
+"1.2 Hybrid 145" = 145
+"1.2 Hybrid" = 136
+"Plug-in Hybrid" = 180
+"e-308" = 156
