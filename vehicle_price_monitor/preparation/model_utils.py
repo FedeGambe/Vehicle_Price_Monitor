@@ -12,7 +12,7 @@ def estrai_modello(annuncio, modelli_ord, motorizzazioni):
     return None
 
 def estrai_allestimento(annuncio, mappa_allestimenti):
-    ann = annuncio.lower()
+    ann = f" {annuncio.lower()} "  # spazi ai bordi: chiavi come " fr " valgono anche a inizio/fine titolo
     for chiave in sorted(mappa_allestimenti.keys(), key=lambda x: -len(x)):
         if chiave in ann:
             return mappa_allestimenti[chiave]
@@ -32,6 +32,15 @@ def unifica_allestimento(value, allestimento_performance, allestimento_sport, al
 
 def estrai_cv(modello, mappa_cv):
     return mappa_cv.get(modello)
+
+def estrai_cv_annuncio(annuncio):
+    """CV scritti nel titolo dell'annuncio (es. '150cv', '150 CV' o '110KW'); None se assenti o non plausibili."""
+    if not isinstance(annuncio, str):
+        return None
+    cv = re.search(r"(\d{2,3})\s?cv\b", annuncio, re.IGNORECASE)
+    kw = re.search(r"(\d{2,3})\s?kw\b", annuncio, re.IGNORECASE)
+    valore = int(cv[1]) if cv else round(int(kw[1]) * 1.36) if kw else None
+    return valore if valore and 50 <= valore <= 700 else None
 
 def estrai_anni(valore, valore2, valore3):
     try:

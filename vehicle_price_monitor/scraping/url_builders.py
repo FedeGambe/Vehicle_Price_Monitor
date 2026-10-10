@@ -93,7 +93,10 @@ def build_subito_url(marca, modello, prezzo_minimo=0, prezzo_massimo=0,
     ms_code = get_km_code(km_minimi, dict_km_subito_ms, min_side=True)
     me_code = get_km_code(km_massimi, dict_km_subito_me, min_side=False)
 
-    url = f"https://www.subito.it/annunci-italia/vendita/auto/{marca}/{modello}/?"
+    if modello.startswith("?"):  # modello senza pagina su Subito: ricerca nel titolo dentro la marca (es. "?q=leon&qso=true")
+        url = f"https://www.subito.it/annunci-italia/vendita/auto/{marca}/{modello}&"
+    else:
+        url = f"https://www.subito.it/annunci-italia/vendita/auto/{marca}/{modello}/?"
     params = []
 
     if prezzo_minimo > 0:

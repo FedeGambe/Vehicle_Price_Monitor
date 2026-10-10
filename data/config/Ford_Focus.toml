@@ -1,0 +1,80 @@
+# Configurazione Ford Focus
+# Quarta serie (Mk4, 2018-2025), prima e dopo il restyling del 2022
+marca = "Ford"
+modello = "Focus"
+
+# Percorso del modello su ogni sito, nel formato "marca/modello" (come compare nell'URL del sito)
+[siti]
+"autoscout" = "ford/focus"
+"automobile_it" = "ford/focus"
+"subito_it" = "ford/focus"
+"autosupermarket" = "ford/focus"
+
+# Filtri di ricerca di default (sovrascrivibili da riga di comando). 0 = nessun limite
+# Dal 2019: le immatricolazioni 2018 sono ancora in parte della terza serie
+[ricerca]
+prezzo_min = 3000
+prezzo_max = 30000
+km_min = 0
+km_max = 0
+anno_min = 2019
+anno_max = 0
+
+# Classificazione degli allestimenti per segmento
+[allestimenti]
+performance = ["ST"]
+sport = ["ST-Line", "ST-Line X", "ST-Line Style"]
+middle = ["Titanium", "Titanium X", "Titanium Style", "Active", "Active X", "Active Style", "Vignale"]
+base = ["Plus", "Business", "Connect", "Trend"]
+
+# Nomi trovati negli annunci -> nome standard dell'allestimento
+[mappa_allestimenti]
+"st-line style" = "ST-Line Style"
+"st line style" = "ST-Line Style"
+"st-line x" = "ST-Line X"
+"st line x" = "ST-Line X"
+"st-line" = "ST-Line"
+"st line" = "ST-Line"
+"stline" = "ST-Line"
+"titanium style" = "Titanium Style"
+"titanium x" = "Titanium X"
+"titanium" = "Titanium"
+"active style" = "Active Style"
+"active x" = "Active X"
+"active" = "Active"
+"vignale" = "Vignale"
+" st " = "ST"
+"st-3" = "ST"
+"st x" = "ST"
+"business" = "Business"
+"connect" = "Connect"
+"trend" = "Trend"
+"plus" = "Plus"
+
+# Sigla motorizzazione negli annunci -> nome standard
+# Vince la chiave più lunga trovata nel titolo; i CV scritti nel titolo hanno comunque la precedenza su [mappa_cv]
+[motorizzazioni]
+"ecoboost hybrid" = "1.0 EcoBoost Hybrid"
+"ecoboost h" = "1.0 EcoBoost Hybrid"
+"mild hybrid" = "1.0 EcoBoost Hybrid"
+"mhev" = "1.0 EcoBoost Hybrid"
+"hybrid" = "1.0 EcoBoost Hybrid"
+"ecoboost" = "1.0 EcoBoost"
+"1.5 ecoboost" = "1.5 EcoBoost"
+"2.3 ecoboost" = "2.3 EcoBoost ST"
+"1.5 ecoblue" = "1.5 EcoBlue"
+"1.5 tdci" = "1.5 EcoBlue"
+"1.5 diesel" = "1.5 EcoBlue"
+"e.blue" = "1.5 EcoBlue"
+"ecoblue" = "1.5 EcoBlue"
+"2.0 ecoblue" = "2.0 EcoBlue"
+"2.0 tdci" = "2.0 EcoBlue"
+
+# Cavalli per ogni motorizzazione (nome standard): la potenza più diffusa, usata se il titolo non indica i CV
+[mappa_cv]
+"1.0 EcoBoost" = 125
+"1.0 EcoBoost Hybrid" = 125
+"1.5 EcoBoost" = 150
+"2.3 EcoBoost ST" = 280
+"1.5 EcoBlue" = 120
+"2.0 EcoBlue" = 150

@@ -1,0 +1,82 @@
+# Configurazione Hyundai i30
+# Terza serie (PD, dal 2017), prima e dopo il restyling del 2020 (berlina, Wagon, Fastback e i30 N)
+marca = "Hyundai"
+modello = "i30"
+
+# Percorso del modello su ogni sito, nel formato "marca/modello" (come compare nell'URL del sito)
+[siti]
+"autoscout" = "hyundai/i30"
+"automobile_it" = "hyundai/i30"
+"subito_it" = "hyundai/i30"
+"autosupermarket" = "hyundai/i30"
+
+# Filtri di ricerca di default (sovrascrivibili da riga di comando). 0 = nessun limite
+# Dal 2018: le immatricolazioni 2017 sono ancora in parte della seconda serie
+[ricerca]
+prezzo_min = 3000
+prezzo_max = 30000
+km_min = 0
+km_max = 0
+anno_min = 2018
+anno_max = 0
+
+# Classificazione degli allestimenti per segmento
+[allestimenti]
+performance = ["N"]
+sport = ["N Line", "N Line X"]
+middle = ["Prime", "Style", "Tecno", "Comfort"]
+base = ["Classic", "Business", "Smart", "Go", "Pure"]
+
+# Nomi trovati negli annunci -> nome standard dell'allestimento
+[mappa_allestimenti]
+"n performance" = "N"
+"n-performance" = "N"
+"i30n" = "N"
+"i30 n " = "N"
+" n " = "N"
+"performance" = "N"
+"n line x" = "N Line X"
+"n-line x" = "N Line X"
+"n line" = "N Line"
+"n-line" = "N Line"
+"nline" = "N Line"
+"prime" = "Prime"
+"style" = "Style"
+"tecno" = "Tecno"
+"techno" = "Tecno"
+"comfort" = "Comfort"
+"classic" = "Classic"
+"business" = "Business"
+"smart" = "Smart"
+"go!" = "Go"
+" go " = "Go"
+"pure" = "Pure"
+
+# Sigla motorizzazione negli annunci -> nome standard
+# Vince la chiave più lunga trovata nel titolo; i CV scritti nel titolo hanno comunque la precedenza su [mappa_cv]
+[motorizzazioni]
+"1.0 t-gdi" = "1.0 T-GDi"
+"1.4 t-gdi" = "1.4 T-GDi"
+"1.5 t-gdi" = "1.5 T-GDi"
+"1.4 mpi" = "1.4 MPi"
+"1.5 dpi" = "1.5 DPi"
+"1.5 mpi" = "1.5 DPi"
+"1.6 crdi" = "1.6 CRDi"
+"crdi" = "1.6 CRDi"
+"crdi 48v" = "1.6 CRDi 48V"
+"crdi mild" = "1.6 CRDi 48V"
+"crdi mhev" = "1.6 CRDi 48V"
+"crdi hybrid" = "1.6 CRDi 48V"
+"2.0 t-gdi" = "2.0 T-GDi N"
+"n performance" = "2.0 T-GDi N"
+
+# Cavalli per ogni motorizzazione (nome standard): la potenza più diffusa, usata se il titolo non indica i CV
+[mappa_cv]
+"1.0 T-GDi" = 120
+"1.4 T-GDi" = 140
+"1.5 T-GDi" = 160
+"1.4 MPi" = 100
+"1.5 DPi" = 110
+"1.6 CRDi" = 116
+"1.6 CRDi 48V" = 136
+"2.0 T-GDi N" = 275

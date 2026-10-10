@@ -1,0 +1,89 @@
+# Configurazione Volkswagen Golf
+# Ottava serie (Golf 8, dal 2020), prima e dopo il restyling del 2024 (Golf 8.5), berlina e Variant
+marca = "Volkswagen"
+modello = "Golf"
+
+# Percorso del modello su ogni sito, nel formato "marca/modello" (come compare nell'URL del sito)
+[siti]
+"autoscout" = "volkswagen/golf"
+"automobile_it" = "volkswagen/golf"
+"subito_it" = "volkswagen/golf"
+"autosupermarket" = "volkswagen/golf"
+
+# Filtri di ricerca di default (sovrascrivibili da riga di comando). 0 = nessun limite
+# Dal 2021: le immatricolazioni 2020 sono ancora in buona parte Golf 7
+[ricerca]
+prezzo_min = 3000
+prezzo_max = 30000
+km_min = 0
+km_max = 0
+anno_min = 2021
+anno_max = 0
+
+# Classificazione degli allestimenti per segmento
+[allestimenti]
+performance = ["GTI", "GTD", "GTE", "R"]
+sport = ["R-Line"]
+middle = ["Style", "Active", "Move", "Goal", "Edition Plus"]
+base = ["Life", "Business"]
+
+# Nomi trovati negli annunci -> nome standard dell'allestimento
+[mappa_allestimenti]
+"r-line" = "R-Line"
+"r line" = "R-Line"
+"rline" = "R-Line"
+"golf r " = "R"
+"r 4motion" = "R"
+"r 20 years" = "R"
+"r performance" = "R"
+"clubsport" = "GTI"
+"gti" = "GTI"
+"gtd" = "GTD"
+"gte" = "GTE"
+"edition plus" = "Edition Plus"
+"first edition" = "Style"
+"1st edition" = "Style"
+"goal" = "Goal"
+"style" = "Style"
+"active" = "Active"
+"move" = "Move"
+"life" = "Life"
+"business" = "Business"
+
+# Sigla motorizzazione negli annunci -> nome standard
+# Vince la chiave più lunga trovata nel titolo; i CV scritti nel titolo hanno comunque la precedenza su [mappa_cv]
+[motorizzazioni]
+"1.0 tsi" = "1.0 TSI"
+"1.0 etsi" = "1.0 eTSI"
+"1.5 tsi" = "1.5 TSI"
+"1.5 etsi" = "1.5 eTSI"
+"1.5 tgi" = "1.5 TGI"
+"1.0 mild hybrid" = "1.0 eTSI"
+"1.5 mild hybrid" = "1.5 eTSI"
+"ehybrid" = "eHybrid"
+"e-hybrid" = "eHybrid"
+"gte" = "GTE"
+"gte ehybrid" = "GTE"
+"2.0 tsi" = "GTI"
+"2.0 tdi" = "2.0 TDI"
+"2.0 diesel" = "2.0 TDI"
+"gtd" = "GTD"
+"gti" = "GTI"
+"clubsport" = "GTI Clubsport"
+"golf r 2.0" = "R"
+"r 4motion" = "R"
+
+# Cavalli per ogni motorizzazione (nome standard): la potenza più diffusa, usata se il titolo non indica i CV
+[mappa_cv]
+"1.0 TSI" = 110
+"1.0 eTSI" = 110
+"1.5 TSI" = 130
+"1.5 eTSI" = 150
+"1.5 TGI" = 130
+"eHybrid" = 204
+"GTE" = 245
+"2.0 TDI" = 115
+"GTD" = 200
+"GTI" = 245
+"GTI Clubsport" = 300
+"R" = 320

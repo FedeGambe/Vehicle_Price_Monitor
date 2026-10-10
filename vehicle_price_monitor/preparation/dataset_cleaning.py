@@ -1,5 +1,5 @@
 import pandas as pd
-from .model_utils import estrai_modello, estrai_allestimento, estrai_cv, estrai_anni, unifica_allestimento
+from .model_utils import estrai_modello, estrai_allestimento, estrai_cv, estrai_cv_annuncio, estrai_anni, unifica_allestimento
 from .cleaning_functions import normalizza_testo, pulisci_cambio, pulisci_prezzo, pulisci_km, pulisci_cambio_dt_merged, pulisci_carburante, pulisci_indirizzo_AT
 import requests
 from geopy.distance import geodesic
@@ -62,7 +62,8 @@ def clean_data_AT(data_AT, only_cap_per_comune, motorizzazioni, modelli_ord, map
     if 'Unico_Proprietario' in data_AT.columns:
         data_AT = data_AT.drop(columns=['Unico_Proprietario'])
     #data_AT['CV'] = data_AT['Modello'].apply(estrai_cv)
-    data_AT['CV'] = data_AT['Modello'].apply(lambda modello: estrai_cv(modello, mappa_cv))
+    # CV dal titolo se presenti, altrimenti dalla motorizzazione riconosciuta
+    data_AT['CV'] = data_AT['Annuncio'].apply(estrai_cv_annuncio).fillna(data_AT['Modello'].apply(lambda modello: estrai_cv(modello, mappa_cv)))
     condizione = (
         data_AT['Immatricolazione'].isnull() &
         (data_AT['Prezzo'] > 29000) &
@@ -84,7 +85,7 @@ def clean_data_SU(data_SU, only_cap_per_comune, motorizzazioni, modelli_ord, map
     data_SU['Cambio'] = data_SU.apply(lambda row: pulisci_cambio(row['Cambio'], row['Annuncio']), axis=1)
     data_SU['Carburante'] = data_SU.apply(lambda row: pulisci_carburante(row['Carburante'], row['Annuncio'], row['Modello']), axis=1)
     data_SU['Immatricolazione'] = pd.to_datetime(data_SU['Immatricolazione'], errors='coerce').dt.year
-    data_SU['CV'] = data_SU['Modello'].apply(lambda modello: estrai_cv(modello, mappa_cv))
+    data_SU['CV'] = data_SU['Annuncio'].apply(estrai_cv_annuncio).fillna(data_SU['Modello'].apply(lambda modello: estrai_cv(modello, mappa_cv)))
     data_SU['Comune'] = data_SU['Località'].apply(normalizza_testo)
     data_SU = data_SU.drop(columns=['Località', 'Provincia'])
     data_SU = data_SU.merge(only_cap_per_comune[['CAP', 'Comune']], on='Comune', how='left')

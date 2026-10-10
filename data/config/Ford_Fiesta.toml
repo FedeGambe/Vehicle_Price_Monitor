@@ -1,0 +1,84 @@
+# Configurazione Ford Fiesta
+# Settima serie (Mk7, 2017-2023), prima e dopo il restyling del 2022
+marca = "Ford"
+modello = "Fiesta"
+
+# Percorso del modello su ogni sito, nel formato "marca/modello" (come compare nell'URL del sito)
+[siti]
+"autoscout" = "ford/fiesta"
+"automobile_it" = "ford/fiesta"
+"subito_it" = "ford/fiesta"
+"autosupermarket" = "ford/fiesta"
+
+# Filtri di ricerca di default (sovrascrivibili da riga di comando). 0 = nessun limite
+# Dal 2018: le immatricolazioni 2017 sono ancora in parte della sesta serie
+[ricerca]
+prezzo_min = 3000
+prezzo_max = 30000
+km_min = 0
+km_max = 0
+anno_min = 2018
+anno_max = 0
+
+# Classificazione degli allestimenti per segmento
+[allestimenti]
+performance = ["ST"]
+sport = ["ST-Line", "ST-Line X"]
+middle = ["Titanium", "Titanium X", "Active", "Active X", "Vignale"]
+base = ["Plus", "Business", "Connect", "Trend"]
+
+# Nomi trovati negli annunci -> nome standard dell'allestimento
+[mappa_allestimenti]
+"st-line x" = "ST-Line X"
+"st line x" = "ST-Line X"
+"st-line" = "ST-Line"
+"st line" = "ST-Line"
+"stline" = "ST-Line"
+"titanium x" = "Titanium X"
+"titanium" = "Titanium"
+"active x" = "Active X"
+"active" = "Active"
+"vignale" = "Vignale"
+" st " = "ST"
+"st-2" = "ST"
+"st-3" = "ST"
+"st performance" = "ST"
+"business" = "Business"
+"connect" = "Connect"
+"trend" = "Trend"
+"plus" = "Plus"
+
+# Sigla motorizzazione negli annunci -> nome standard
+# Vince la chiave più lunga trovata nel titolo; i CV scritti nel titolo hanno comunque la precedenza su [mappa_cv]
+[motorizzazioni]
+"1.1 titanium" = "1.1"
+"1.1 st-line" = "1.1"
+"1.1 plus" = "1.1"
+"1.1 business" = "1.1"
+"1.1 connect" = "1.1"
+"1.1 gpl" = "1.1"
+"1.1 70" = "1.1"
+"1.1 75" = "1.1"
+"1.1 85" = "1.1"
+"ecoboost hybrid" = "1.0 EcoBoost Hybrid"
+"ecoboost h" = "1.0 EcoBoost Hybrid"
+"mild hybrid" = "1.0 EcoBoost Hybrid"
+"m-hybrid" = "1.0 EcoBoost Hybrid"
+"mhev" = "1.0 EcoBoost Hybrid"
+"ecoboost" = "1.0 EcoBoost"
+"1.5 ecoboost" = "1.5 EcoBoost ST"
+"st performance" = "1.5 EcoBoost ST"
+"st 200" = "1.5 EcoBoost ST"
+"1.5 tdci" = "1.5 TDCi"
+"1.5 ecoblue" = "1.5 TDCi"
+"1.5 diesel" = "1.5 TDCi"
+"ecoblue" = "1.5 TDCi"
+"tdci" = "1.5 TDCi"
+
+# Cavalli per ogni motorizzazione (nome standard): la potenza più diffusa, usata se il titolo non indica i CV
+[mappa_cv]
+"1.1" = 75
+"1.0 EcoBoost" = 100
+"1.0 EcoBoost Hybrid" = 125
+"1.5 EcoBoost ST" = 200
+"1.5 TDCi" = 85
