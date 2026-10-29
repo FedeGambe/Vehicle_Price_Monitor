@@ -142,20 +142,31 @@
     return leggi("area");
   }
 
-  var precedente = null;
+  // Il valore conta fino al risultato; all'apertura dei risultati parte da zero
+  var precedente = null, riduci = matchMedia("(prefers-reduced-motion: reduce)").matches, daZero = false, conta = 0;
+  function contaFino(v) {
+    var da = daZero ? 0 : precedente === null ? v : precedente, t0 = performance.now();
+    daZero = false; cancelAnimationFrame(conta);
+    if (riduci || da === v) { $("valore-grande").textContent = eurSegno(v); return; }
+    (function passo(t) {
+      var k = Math.min(1, (t - t0) / 800), e = 1 - Math.pow(1 - k, 3);
+      $("valore-grande").textContent = eurSegno(da + (v - da) * e);
+      if (k < 1) conta = requestAnimationFrame(passo);
+    })(t0);
+  }
+
   function disegnaKpi(m, r, prezzo) {
     var delta = r.previsto - prezzo, soglia = m.rmse_lin;
     var frazione = Math.max(0, Math.min(1, 0.5 + delta / (4 * soglia)));
     $("arco").setAttribute("stroke-dasharray", (frazione * 100).toFixed(2) + " 100");
     $("arco").classList.toggle("basso", delta < 0);
-    $("valore-grande").textContent = eurSegno(delta);
+    contaFino(delta);
     var tipo = delta > soglia ? ["bev", "Sotto prezzata: buon affare"] : delta < -soglia ? ["altro", "Sovra prezzata"] : ["neutro", "Prezzo in linea con il mercato"];
     $("verdetto").className = "verdetto " + tipo[0];
+    $("risultato").className = "scheda risultato " + tipo[0];
     $("verdetto").textContent = tipo[1];
     $("delta").textContent = "Stimato " + eur(r.previsto) + " · richiesto " + eur(prezzo);
     $("confronto").innerHTML = '<span class="tacca"></span>Errore tipico del modello: ±' + eur(soglia) + ". Una differenza più piccola dell'errore non è significativa.";
-    $("mob-p").textContent = eurSegno(delta);
-    $("mob-delta").textContent = "stima " + eur(r.previsto);
   }
 
   function passoAsse(intervallo) {
@@ -172,17 +183,17 @@
     var hi = Math.ceil((Math.max.apply(null, punti) + passo * 0.3) / passo) * passo;
     var X = function (p) { return ((p - lo) / (hi - lo) * 100).toFixed(2) + "%"; };
 
-    var html = '<div class="riga estremo" role="listitem"><span class="nome"><b>Auto media</b><span>riferimento del modello</span></span>' +
+    var html = '<div class="riga estremo" role="listitem" style="--i:0"><span class="nome"><b>Auto media</b><span>riferimento del modello</span></span>' +
       '<span class="pista"><span class="segno" style="left:' + X(r.base) + '"></span></span><span class="val">' + eur(r.base) + "</span></div>";
-    voci.forEach(function (x) {
+    voci.forEach(function (x, i) {
       var su = x.a >= x.da;
-      html += '<div class="riga" role="listitem"><span class="nome"><b>' + NOMI[x.id] + "</b><span>" + descrizione(x.id) + "</span></span>" +
+      html += '<div class="riga" role="listitem" style="--i:' + (i + 1) + '"><span class="nome"><b>' + NOMI[x.id] + "</b><span>" + descrizione(x.id) + "</span></span>" +
         '<span class="pista"><span class="seg ' + (su ? "su" : "giu") + '" style="left:' + X(Math.min(x.da, x.a)) + ";width:calc(" +
         X(Math.max(x.da, x.a)) + " - " + X(Math.min(x.da, x.a)) + ')"></span></span>' +
         '<span class="val ' + (su ? "su" : "giu") + '">' + (su ? "▲ " : "▼ ") + interi.format(Math.abs(Math.round(x.v))) +
         '<span class="solo-lettori"> euro ' + (su ? "in più" : "in meno") + "</span></span></div>";
     });
-    html += '<div class="riga estremo finale" role="listitem"><span class="nome"><b>Prezzo stimato</b><span>questa auto</span></span>' +
+    html += '<div class="riga estremo finale" role="listitem" style="--i:' + (voci.length + 1) + '"><span class="nome"><b>Prezzo stimato</b><span>questa auto</span></span>' +
       '<span class="pista"><span class="segno" style="left:' + X(r.previsto) + '"></span>' +
       '<span class="segno" style="left:' + X(prezzo) + ';background:var(--arancio)" title="Prezzo richiesto"></span></span><span class="val">' + eur(r.previsto) + "</span></div>";
     $("cascata").innerHTML = html;
@@ -197,6 +208,7 @@
     var m = modelloAttuale();
     aggiornaAiuti(m);
     var errati = mostraErrori(campoModificato), bloccato = errati.length > 0;
+    if (pagina.dataset.fase !== "risultati") return;  // in fase input si controllano solo i campi
     $("blocco-risultato").classList.toggle("inattivo", bloccato);
     $("cascata").classList.toggle("inattivo", bloccato);
     $("avviso").innerHTML = bloccato ? '<p class="avviso" role="alert">Correggi ' + (errati.length === 1 ? "il campo evidenziato" :
@@ -205,7 +217,7 @@
     var prezzo = Number($("prezzo").value), r = calcola(m);
     disegnaKpi(m, r, prezzo);
     disegnaCascata(m, r, prezzo);
-    precedente = r.previsto;
+    precedente = r.previsto - prezzo;  // differenza mostrata nel KPI, da cui riparte il conteggio
     salvaNelLink();
   }
 
@@ -229,13 +241,56 @@
     return true;
   }
 
-  /* 5. Eventi -------------------------------------------------------------- */
+  /* 5. Due fasi: prima l'annuncio, poi la stima (il form si comprime nel riepilogo) */
+  var pagina = document.querySelector(".pagina");
+  function mostraFase(fase, scorri) {
+    pagina.dataset.fase = fase;
+    if (scorri) $(fase === "risultati" ? "riepilogo" : "profilo").scrollIntoView({ block: "start" });
+    if (fase === "input") passoAttivo();
+  }
+  function mostraRisultati(scorri) {
+    var errati = mostraErrori();
+    if (errati.length) { mostraFase("input"); $(errati[0]).focus(); return; }
+    var voci = [["Modello", modelloAttuale().titolo], ["Allestimento", $("allest").value], ["Carburante", leggi("carb")],
+      ["Cambio", descrizione("cambio")], ["Età", descrizione("anni")], ["Km", interi.format(Number($("km").value))],
+      ["Potenza", descrizione("cv")], ["Prezzo", eur(Number($("prezzo").value))], ["Zona", leggi("area")]];
+    $("riepilogo-voci").innerHTML = voci.map(function (v) { return "<li>" + v[0] + " <b>" + v[1] + "</b></li>"; }).join("");
+    mostraFase("risultati", scorri);
+    $("arco").setAttribute("stroke-dasharray", "50 100"); getComputedStyle($("arco")).strokeDasharray;  // l'arco parte dal centro
+    daZero = true;
+    $("cascata").classList.add("entra"); setTimeout(function () { $("cascata").classList.remove("entra"); }, 1400);
+    aggiorna();
+  }
+
+  // Barra dei passi: una voce per .sezione, attiva quella sotto la barra, "fatto" quelle già passate
+  var sezioni = [].slice.call(document.querySelectorAll("#profilo .sezione"));
+  $("passi").innerHTML = sezioni.map(function (s, i) {
+    s.id = s.id || "passo-" + (i + 1);
+    return '<li><a href="#' + s.id + '"><span class="passo">' + (i + 1) + '</span><span class="nome">' +
+      s.querySelector("legend").lastChild.textContent.trim() + "</span></a></li>";
+  }).join("");
+  var vociPassi = [].slice.call($("passi").children);
+  function passoAttivo() {
+    if (pagina.dataset.fase !== "input") return;
+    var k = 0, fondo = innerHeight + scrollY >= document.documentElement.scrollHeight - 4;
+    sezioni.forEach(function (s, i) { if (s.getBoundingClientRect().top < innerHeight * 0.4) k = i; });
+    if (fondo) k = sezioni.length - 1;
+    vociPassi.forEach(function (li, i) {
+      li.classList.toggle("fatto", i < k); li.classList.toggle("attivo", i === k);
+      if (i === k) li.firstChild.setAttribute("aria-current", "step"); else li.firstChild.removeAttribute("aria-current");
+    });
+    sezioni.forEach(function (s, i) { s.classList.toggle("attiva", i === k); });
+  }
+  addEventListener("scroll", passoAttivo, { passive: true }); addEventListener("resize", passoAttivo); passoAttivo();
+
+  /* 6. Eventi -------------------------------------------------------------- */
   $("profilo").addEventListener("input", function (e) {
     var id = e.target.id || e.target.name;
     if (id === "modello") { var m = modelloAttuale(); preparaModello(m, true); valoriTipici(m); }
     aggiorna(id);
   });
-  $("profilo").addEventListener("submit", function (e) { e.preventDefault(); });
+  $("profilo").addEventListener("submit", function (e) { e.preventDefault(); mostraRisultati(true); });
+  $("modifica").addEventListener("click", function () { mostraFase("input", true); });
   $("profilo").addEventListener("click", function (e) {
     var b = e.target.closest("[data-passo]");
     if (!b) return;
@@ -244,7 +299,7 @@
     inp.value = Math.min(Number(inp.max), Math.max(Number(inp.min), n));
     aggiorna(inp.id);
   });
-  $("ripristina").addEventListener("click", function () { valoriTipici(modelloAttuale()); aggiorna(); });
+  $("ripristina").addEventListener("click", function () { valoriTipici(modelloAttuale()); mostraFase("input", true); aggiorna(); });
   $("copia").addEventListener("click", function () {
     var b = $("copia"), testo = b.textContent;
     var fatto = function () { b.textContent = "Link copiato"; setTimeout(function () { b.textContent = testo; }, 1600); };
@@ -277,17 +332,13 @@
   $("o-modello").addEventListener("change", tabellaOfferte);
 
   /* Avvio */
-  if (!leggiDalLink()) {
+  var dalLink = leggiDalLink();  // un link condiviso apre direttamente la stima
+  if (!dalLink) {
     var m0 = modelloAttuale();
     preparaModello(m0, false);
     valoriTipici(m0);
   }
   aggiorna();
+  if (dalLink) mostraRisultati(false);
   tabellaOfferte();
-
-  if ("IntersectionObserver" in window) {
-    new IntersectionObserver(function (voci) {
-      $("barra-mobile").classList.toggle("visibile", !voci[0].isIntersecting && voci[0].boundingClientRect.top > 0);
-    }).observe($("risultato"));
-  }
 })();

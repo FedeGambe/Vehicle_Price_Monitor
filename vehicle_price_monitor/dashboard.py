@@ -144,12 +144,12 @@ def build(nomi=None, out=DOCS / "index.html"):
     dati = json.dumps({"ordine": nomi, "modelli": {m["nome"]: m for m in ms}}, ensure_ascii=False).replace("</", "<\\/")
     pagina = (WEB / "template.html").read_text(encoding="utf8")
     for k, v in {
-        "LINGUA": "it", "TITOLO": "Vehicle Price Monitor", "TITOLO_HTML": "Vehicle <em>Price</em> Monitor",
+        "LINGUA": "it", "OCCHIELLO": "Stima del prezzo · auto usate", "TITOLO": "Vehicle Price Monitor", "TITOLO_HTML": "Vehicle <em>Price</em> Monitor",
         "DESCRIZIONE": "Un'auto usata è sovra o sotto prezzata? Stima del prezzo di mercato e migliori offerte.",
         "INTRO": "Inserisci i dati di un annuncio e scopri se il prezzo è in linea con il mercato. "
                  "La stima si basa sugli annunci di Autoscout24, Automobile.it, Autosupermarket e Subito.",
         "LINK_BARRA": "", "FAVICON_URI": FAVICON, "SEZIONI_CONTROLLI": SEZIONI,
-        "TITOLO_KPI": "Prezzo giusto?", "KPI": KPI, "ETICHETTA_KPI": "Stima − richiesto",
+        "TITOLO_KPI": "Prezzo giusto?", "KPI": KPI,
         "TITOLO_DETTAGLIO": "Cosa fa il prezzo", "DETTAGLIO": DETTAGLIO, "NOTE_METODO": METODO,
         "RISULTATI": RISULTATI.replace("__RIGHE__", "".join(_riga_modello(m) for m in ms)),
         "NOTA_FOOTER": ("<p>Stime indicative su annunci raccolti il " + ms[0]["aggiornato"] + ": i prezzi di vendita reali possono differire, "
