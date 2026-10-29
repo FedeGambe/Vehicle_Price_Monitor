@@ -95,7 +95,7 @@ KPI = '''
           <svg class="indicatore" viewBox="0 0 240 152" role="img" aria-labelledby="ind-desc">
             <desc id="ind-desc">Differenza tra prezzo stimato e prezzo richiesto</desc>
             <path class="traccia" d="M20 120 A100 100 0 0 1 220 120" fill="none" stroke-width="20" stroke-linecap="round"/>
-            <path class="valore" id="arco" d="M20 120 A100 100 0 0 1 220 120" fill="none" stroke-width="20" stroke-linecap="round" pathLength="100" stroke-dasharray="0 100"/>
+            <path class="valore" id="arco" d="M20 120 A100 100 0 0 1 220 120" fill="none" stroke-width="20" stroke-linecap="round" pathLength="100" stroke-dasharray="0 200"/>
             <line class="media" x1="120" y1="8" x2="120" y2="40"/>
             <text class="grande" id="valore-grande" x="120" y="112" text-anchor="middle">–</text>
             <text class="estremi" x="20" y="148" text-anchor="middle">sovra</text>
@@ -109,7 +109,7 @@ KPI = '''
 DETTAGLIO = '''
         <div class="cascata" id="cascata" role="list"></div>
         <div class="asse-x" aria-hidden="true"><span></span><div class="tacche" id="tacche"></div><span></span></div>
-        <div class="legenda" aria-hidden="true"><span><i style="background:var(--teal)"></i>▲ alza il prezzo</span><span><i style="background:var(--arancio)"></i>▼ abbassa il prezzo</span></div>
+        <div class="legenda" aria-hidden="true"><span><i style="background:var(--sale)"></i>▲ alza il prezzo</span><span><i style="background:var(--scende)"></i>▼ abbassa il prezzo</span></div>
 '''
 
 METODO = '''

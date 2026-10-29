@@ -158,11 +158,9 @@
   function disegnaKpi(m, r, prezzo) {
     var delta = r.previsto - prezzo, soglia = m.rmse_lin;
     var frazione = Math.max(0, Math.min(1, 0.5 + delta / (4 * soglia)));
-    $("arco").setAttribute("stroke-dasharray", (frazione * 100).toFixed(2) + " 100");
-    $("arco").classList.toggle("basso", delta < 0);
+    $("arco").setAttribute("stroke-dasharray", (frazione * 100).toFixed(2) + " 200")  // spazio di 200: niente secondo trattino all'altra estremità;
     contaFino(delta);
-    var tipo = delta > soglia ? ["bev", "Sotto prezzata: buon affare"] : delta < -soglia ? ["altro", "Sovra prezzata"] : ["neutro", "Prezzo in linea con il mercato"];
-    $("verdetto").className = "verdetto " + tipo[0];
+    var tipo = delta > soglia ? ["su", "Sotto prezzata: buon affare"] : delta < -soglia ? ["giu", "Sovra prezzata"] : ["neutro", "Prezzo in linea con il mercato"];  // verde affare, rosso caro, blu in linea
     $("risultato").className = "scheda risultato " + tipo[0];
     $("verdetto").textContent = tipo[1];
     $("delta").textContent = "Stimato " + eur(r.previsto) + " · richiesto " + eur(prezzo);
@@ -195,7 +193,7 @@
     });
     html += '<div class="riga estremo finale" role="listitem" style="--i:' + (voci.length + 1) + '"><span class="nome"><b>Prezzo stimato</b><span>questa auto</span></span>' +
       '<span class="pista"><span class="segno" style="left:' + X(r.previsto) + '"></span>' +
-      '<span class="segno" style="left:' + X(prezzo) + ';background:var(--arancio)" title="Prezzo richiesto"></span></span><span class="val">' + eur(r.previsto) + "</span></div>";
+      '<span class="segno" style="left:' + X(prezzo) + ';background:var(--ambra)" title="Prezzo richiesto"></span></span><span class="val">' + eur(r.previsto) + "</span></div>";
     $("cascata").innerHTML = html;
 
     var tacche = "";
@@ -256,7 +254,7 @@
       ["Potenza", descrizione("cv")], ["Prezzo", eur(Number($("prezzo").value))], ["Zona", leggi("area")]];
     $("riepilogo-voci").innerHTML = voci.map(function (v) { return "<li>" + v[0] + " <b>" + v[1] + "</b></li>"; }).join("");
     mostraFase("risultati", scorri);
-    $("arco").setAttribute("stroke-dasharray", "50 100"); getComputedStyle($("arco")).strokeDasharray;  // l'arco parte dal centro
+    $("arco").setAttribute("stroke-dasharray", "50 200"); getComputedStyle($("arco")).strokeDasharray;  // l'arco parte dal centro
     daZero = true;
     $("cascata").classList.add("entra"); setTimeout(function () { $("cascata").classList.remove("entra"); }, 1400);
     aggiorna();
